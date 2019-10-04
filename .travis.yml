@@ -9,6 +9,9 @@ addons:
 jdk:
   - openjdk8
 
-script:
-  # other script steps might be done before running the actual analysis
-  - sonar-scanner
+jobs:
+  include:
+    - stage: test
+      script: sbt test
+    - stage: sonarcloud
+      script: sonar-scanner
