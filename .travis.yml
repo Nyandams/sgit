@@ -1,1 +1,14 @@
 language: scala
+
+addons:
+  sonarcloud:
+    organization: "nyandams"
+    token:
+      secure: "Jlj9JYz/HPTow06I8YYFLDMHQwOXQzlRYsJbDNWEZs4oekt/19PUZjcm4NMAScotWuX9hiaxiKIbTEOilk1B4suD6VHWE+eAgn2x+p73wI87elzsDdFnghPMnX5G2ur+WcCfVvx8LAd9LvzKqD8Ne8xkbnkhnT7pGWGyUsv5WzDtK8JeTMDLuajnGpgJoVbNiywI7FYoFQD5rMUeYsUcTcgkT4H0FLuprK1TWpxmAJznbFTRdBvfRYz5qZLEV2UHJ3m2Uwiub22DJO+5Wcn5mcV/VuNIHx//wJAyagid/Cc9iN4+gyDEtQphMWUsvKq23Q8cJoQtGYPd9KlqPg6lOzhE6wZfU2mEmGoYv5JDVKDNkamKsoC3I3qra8X+3LqPCbF7hA2LDuYk/4KOsHN1InJmhPwHjCP5dT5DJltzak72RTasItn6hBpS/wtCbc4aPEiqDX0Ucfel0/vsgwwecpsHuCzoGiN9lr+m4JPWoMawK/C9nRSaskJv3j//uj5PyeY4i5U5AZhFLBObWFQ6mSmRZt1X4OwW9M/I7dQI4iOYDtLxCFMlnoHytSGJRIJURLIVgBNxtB4jjTi5ghSzih/jxw9LrOQY8YrOvOG2CwSrCaXHZ8GV5g4eQAnOC46CWG3ReD4hh11yciSK3IGBwE+mS9cZ6pRX49fqfO86mhY="
+
+jdk:
+  - openjdk8
+
+script:
+  # other script steps might be done before running the actual analysis
+  - sonar-scanner
