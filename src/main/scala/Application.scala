@@ -85,3 +85,5 @@ sgit rebase -i <commit hash or banch name>
     // arguments are bad, error message will have been displayed
   }
 }
+
+// TODO : sbt assembly
