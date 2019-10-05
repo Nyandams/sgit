@@ -113,7 +113,7 @@ object Parser {
 
           opt[Unit]('i', name = "interactive")
             .action((_, c) => c.copy(interactive = true))
-            .text("42 interface to rename, squash and do random on commits before rebasing")
+            .text("42 interfaces in order to rename, squash and do random stuff on commits before rebasing")
         )
     }
   }
