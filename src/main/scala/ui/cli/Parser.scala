@@ -1,5 +1,4 @@
 package ui.cli
-import java.io.File
 import scopt.OptionParser
 
 object Parser {
@@ -19,7 +18,7 @@ object Parser {
         .action((_, c) => c.copy(mode = "add"))
         .text("Add file contents to the index.")
         .children(
-          arg[File](name = "<file>...")
+          arg[String](name = "<file>...")
             .unbounded()
             .action((x, c) => c.copy(files = c.files :+ x))
             .text("list of files to add"),
@@ -66,7 +65,7 @@ object Parser {
         .action((_, c) => c.copy(mode = "branch", showBranch = true))
         .text("Create a new branch")
         .children(
-          arg[File](name = "<branch name>")
+          arg[String](name = "<branch name>")
             .action((x, c) => c.copy(file = x))
             .optional()
             .text("name of the branch you are creating"),
@@ -83,7 +82,7 @@ object Parser {
         .action((_, c) => c.copy(mode = "checkout"))
         .text("move the HEAD to the branch, tag or commit hash")
         .children(
-          arg[File](name = "<branch or tag or commit hash>")
+          arg[String](name = "<branch or tag or commit hash>")
             .action((x, c) => c.copy(file = x))
             .text("branch or tag or commit hash")
             .required()
@@ -93,7 +92,7 @@ object Parser {
         .action((_, c) => c.copy(mode = "merge"))
         .text("Join two development histories together")
         .children(
-          arg[File](name = "<branch>")
+          arg[String](name = "<branch>")
             .action((x, c) => c.copy(file = x))
             .text("the branch to merge to the current one")
         )
@@ -102,7 +101,7 @@ object Parser {
         .action((_, c) => c.copy(mode = "rebase"))
         .text("Reapply commits on top of another base tip")
         .children(
-          arg[File](name = "<branch or commit>")
+          arg[String](name = "<branch or commit>")
             .action((x, c) => c.copy(file = x))
             .text("branch/commit that will be the new base of the current branch"),
 

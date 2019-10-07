@@ -52,6 +52,6 @@ object FileTool {
    * @param content String
    * @return String
    */
-  def sha(content: String): String = {
+  def sha1(content: String): String = {
     String.format("%032x", new BigInteger(1, MessageDigest.getInstance("SHA-1").digest(content.getBytes("UTF-8"))))  }
 }

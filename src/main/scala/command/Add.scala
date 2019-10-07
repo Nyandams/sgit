@@ -1,9 +1,17 @@
 package command
 import util.FileTool._
 import better.files._
+import objects.Blob.handleBlobCreation
 
 object Add {
-  def add(files: Array[File]): Unit = {
+  def add(filesPath: Array[String]): Unit = {
+    val files = filesPath.map(fp => File(fp))
 
+    val dirs = files.filter(f => f.isDirectory)
+    val directFiles = files.filter(f => f.isRegularFile)
+    val filesRec = dirs.flatMap(dir => dir.listRecursively).filter(f => f.isRegularFile)
+
+    val filesToAdd = directFiles ++ filesRec
+    filesToAdd.foreach(f => handleBlobCreation(f))
   }
 }
