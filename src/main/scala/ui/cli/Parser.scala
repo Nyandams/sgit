@@ -21,13 +21,8 @@ object Parser {
         .children(
           arg[File](name = "<file>...")
             .unbounded()
-            .optional()
             .action((x, c) => c.copy(files = c.files :+ x))
             .text("list of files to add"),
-
-          arg[String](name = "\"regexp\"")
-            .action((x, c) => c.copy(regex = x))
-            .text("a regex")
         )
 
       cmd(name = "commit")

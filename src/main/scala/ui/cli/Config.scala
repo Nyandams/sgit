@@ -5,8 +5,7 @@ import java.io.File
 case class Config(
                    mode: String = "",
                    commitMessage: String = "",
-                   files: Seq[File] = Seq(),
-                   regex: String = "",
+                   files: Array[File] = Array(),
                    patch: Boolean = false,
                    stat: Boolean = false,
                    tagName: String = "",

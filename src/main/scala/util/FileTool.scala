@@ -1,7 +1,9 @@
 package util
 
+import java.math.BigInteger
 import annotation.tailrec
 import better.files._
+import java.security.MessageDigest
 
 object FileTool {
 
@@ -44,4 +46,12 @@ object FileTool {
       isInSgit(file.parent)
     }
   }
+
+  /**
+   * Apply SHA-1 to a string
+   * @param content String
+   * @return String
+   */
+  def sha(content: String): String = {
+    String.format("%032x", new BigInteger(1, MessageDigest.getInstance("SHA-1").digest(content.getBytes("UTF-8"))))  }
 }
