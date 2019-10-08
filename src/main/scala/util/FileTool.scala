@@ -7,9 +7,7 @@ import java.security.MessageDigest
 
 object FileTool {
 
-  def getUserPath: String = {
-    System.getProperty("user.dir")
-  }
+  def getUserPath: String = System.getProperty("user.dir")
 
   def getUserDirectory: File = {
     File(getUserPath)

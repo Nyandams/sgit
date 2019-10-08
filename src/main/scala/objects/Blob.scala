@@ -2,9 +2,28 @@ package objects
 
 import better.files._
 import util.FileTool._
+import annotation.tailrec
 
 object Blob {
-  def handleBlobCreation(file: File): Unit ={
+
+  /**
+   * Create Blobs and add them to the index
+   * @param files
+   */
+  def handleBlobsAdding(files: Array[File], index: Int = 0): Map[String, String] ={
+    if (index < files.length){
+      handleBlobCreation(files(index)) ++ handleBlobsAdding(files, index+1)
+    } else {
+      Map()
+    }
+  }
+
+  /**
+   * Create the blob of file and return the map corresponding to the index
+   * @param file
+   * @return
+   */
+  def handleBlobCreation(file: File): Map[String, String] ={
     val textFile = file.contentAsString
     val sha = file.sha1.toLowerCase()
 
@@ -15,10 +34,13 @@ object Blob {
 
         val dirBlob = sha.substring(0,2)
         val nameBlob = sha.substring(2)
-        (sgitDir/"objects"/dirBlob/nameBlob).createFileIfNotExists(true)
-
+        (sgitDir/".sgit"/"objects"/dirBlob/nameBlob).createFileIfNotExists(createParents = true).overwrite(textFile)
+        Map(indexPathCut -> nameBlob)
       }
-      case Right(error) => println(error)
+      case Right(error) => {
+        println(error)
+        Map()
+      }
     }
   }
 }
