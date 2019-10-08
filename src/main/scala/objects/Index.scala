@@ -4,39 +4,26 @@ import util.FileTool._
 import annotation.tailrec
 
 object Index {
-  def updateIndex(indexMap: Map[String,String]) = {
-    getSgitRec() match {
-      case Left(dir) => {
-        var indexFile = dir/".sgit"/"index"
-        if (indexFile.exists){
-          indexFile.clear()
-          indexMap foreach{case(key, value) => indexFile.appendText(value + " " + key + "\n")}
-        } else {
-          println("index not found")
-        }
-      }
-      case Right(error) => {
-        println(error)
-      }
+  def updateIndex(repo: File, indexMap: Map[String,String]) = {
+    val indexFile = repo/".sgit"/"index"
+    if (indexFile.exists){
+      indexFile.clear()
+      indexMap foreach{case(key, value) => indexFile.appendText(value + " " + key + "\n")}
+    } else {
+      println("index not found")
     }
   }
 
   /**
    * src -> SHA-1
    */
-  def getMapFromIndex(): Either[Map[String, String], String] = {
+  def getMapFromIndex(repo: File): Either[Map[String, String], String] = {
+    val indexFile = repo/".sgit"/"index"
 
-    getSgitRec() match {
-      case Left(dir) => {
-        var indexFile = dir/".sgit"/"index"
-
-        if(indexFile.exists) {
-          Left(getMapFromIndexIterator(indexFile.lineIterator))
-        } else {
-          Right("file index not found")
-        }
-      }
-      case Right(error) => Right(error)
+    if(indexFile.exists) {
+      Left(getMapFromIndexIterator(indexFile.lineIterator))
+    } else {
+      Right("file index not found")
     }
   }
 

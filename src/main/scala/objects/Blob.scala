@@ -10,9 +10,9 @@ object Blob {
    * Create Blobs and add them to the index
    * @param files
    */
-  def handleBlobsAdding(files: Array[File], index: Int = 0): Map[String, String] ={
+  def handleBlobsAdding(repo: File, files: Array[File], index: Int = 0): Map[String, String] ={
     if (index < files.length){
-      handleBlobCreation(files(index)) ++ handleBlobsAdding(files, index+1)
+      handleBlobCreation(repo, files(index)) ++ handleBlobsAdding(repo, files, index+1)
     } else {
       Map()
     }
@@ -23,24 +23,16 @@ object Blob {
    * @param file
    * @return
    */
-  def handleBlobCreation(file: File): Map[String, String] ={
+  def handleBlobCreation(repo: File, file: File): Map[String, String] ={
     val textFile = file.contentAsString
     val sha = file.sha1.toLowerCase()
 
-    getSgitRec() match {
-      case Left(sgitDir) => {
-        val indexPath = file.pathAsString
-        val indexPathCut = indexPath.replace(sgitDir.pathAsString, "")
+    val indexPath = file.pathAsString
+    val indexPathCut = indexPath.replace(repo.pathAsString, "")
 
-        val dirBlob = sha.substring(0,2)
-        val nameBlob = sha.substring(2)
-        (sgitDir/".sgit"/"objects"/dirBlob/nameBlob).createFileIfNotExists(createParents = true).overwrite(textFile)
-        Map(indexPathCut -> nameBlob)
-      }
-      case Right(error) => {
-        println(error)
-        Map()
-      }
-    }
+    val dirBlob = sha.substring(0,2)
+    val nameBlob = sha.substring(2)
+    (repo/".sgit"/"objects"/dirBlob/nameBlob).createFileIfNotExists(createParents = true).overwrite(textFile)
+    Map(indexPathCut -> nameBlob)
   }
 }

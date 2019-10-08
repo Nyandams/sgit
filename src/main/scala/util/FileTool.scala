@@ -9,9 +9,7 @@ object FileTool {
 
   def getUserPath: String = System.getProperty("user.dir")
 
-  def getUserDirectory: File = {
-    File(getUserPath)
-  }
+  def getUserDirectory: File = File(getUserPath)
 
   /**
    * Returns the .sgit path if there is one
