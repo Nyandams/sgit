@@ -2,6 +2,7 @@ package ui.cli
 import ui.cli.Parser.getConfig
 import command.Init._
 import command.Add._
+import command.Commit._
 import util.FileTool._
 
 object Dispatcher {
@@ -12,6 +13,7 @@ object Dispatcher {
         case Some(config) => config.mode match {
           case "init" => init()
           case "add" => add(repo, config.files)
+          case "commit" => commit(repo)
         }
         case None =>
         case _ =>

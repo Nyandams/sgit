@@ -25,7 +25,7 @@ object Parser {
         )
 
       cmd(name = "commit")
-        .action((_, c) => c.copy(mode = "add"))
+        .action((_, c) => c.copy(mode = "commit"))
         .text("Record changes to the repository")
         .children(
           opt[String]('m', name = "message")

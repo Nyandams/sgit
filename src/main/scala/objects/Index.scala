@@ -7,7 +7,8 @@ object Index {
   def updateIndex(repo: File, indexMap: Map[String,String]) = {
     val indexFile = repo/".sgit"/"index"
     if (indexFile.exists){
-      indexFile.clear()
+      indexFile.delete()
+      indexFile.createFile()
       indexMap foreach{case(key, value) => indexFile.appendText(value + " " + key + "\n")}
     } else {
       println("index not found")

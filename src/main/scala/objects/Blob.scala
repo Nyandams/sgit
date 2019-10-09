@@ -3,6 +3,7 @@ package objects
 import better.files._
 import util.FileTool._
 import annotation.tailrec
+import java.io.File.separator
 
 object Blob {
 
@@ -28,7 +29,7 @@ object Blob {
     val sha = file.sha1.toLowerCase()
 
     val indexPath = file.pathAsString
-    val indexPathCut = indexPath.replace(repo.pathAsString, "")
+    val indexPathCut = indexPath.replace(repo.pathAsString + separator, "")
 
     val dirBlob = sha.substring(0,2)
     val nameBlob = sha.substring(2)

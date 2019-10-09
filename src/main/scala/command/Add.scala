@@ -5,7 +5,6 @@ import objects.Blob.handleBlobsAdding
 import objects.Index._
 
 object Add {
-  // TODO : handle sgit add .
   def add(repo: File, filesPath: Array[String]): Unit = {
     val files = filesPath.map(fp => File(fp))
 
@@ -13,11 +12,15 @@ object Add {
     val directFiles = files.filter(f => f.isRegularFile)
     val filesRec = dirs.flatMap(dir => dir.listRecursively).filter(f => f.isRegularFile)
     val filesToAdd = directFiles ++ filesRec
-    val indexMapAdded = handleBlobsAdding(repo, filesToAdd)
+    // in the repo but not sgit
+    val validFilesToAdd = filesToAdd.filter(f => f.pathAsString.contains(repo.pathAsString))
+                                    .filter(f => !f.pathAsString.contains(".sgit/"))
+    val indexMapAdded = handleBlobsAdding(repo, validFilesToAdd)
 
     getMapFromIndex(repo) match {
       case Left(mapOldIndex) => {
-        val mapDiff = (mapOldIndex.toSet diff indexMapAdded.toSet).toMap
+        val mapCleanOldIndex = mapOldIndex.filterKeys(key => (repo/key).exists)
+        val mapDiff = (mapCleanOldIndex.toSet diff indexMapAdded.toSet).toMap
         val indexMapFinal = indexMapAdded ++ mapDiff
         updateIndex(repo, indexMapFinal)
       }
