@@ -13,7 +13,7 @@ object Dispatcher {
         case Some(config) => config.mode match {
           case "init" => init()
           case "add" => add(repo, config.files)
-          case "commit" => commit(repo)
+          case "commit" => commit(repo, config.commitMessage)
         }
         case None =>
         case _ =>

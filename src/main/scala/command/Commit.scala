@@ -9,7 +9,7 @@ import annotation.tailrec
 
 object Commit {
 
-  def commit(repo: File): Unit = {
+  def commit(repo: File, message: String): Unit = {
     getMapFromIndex(repo) match {
       case Left(mapIndex) =>
 
@@ -19,7 +19,23 @@ object Commit {
         if (listSorted.nonEmpty) {
           val sizeMax = listSorted.head.length
           val treeCommit = tree(srcs = listSorted, size = sizeMax, mapIndex = mapIndex, repo = repo)
-          println(treeCommit)
+
+          val headFile = (repo/".sgit"/"HEAD").contentAsString.split(" ")(1)
+          val currentBranch = (repo/".sgit"/headFile).createFileIfNotExists()
+          val lastCommit = currentBranch.contentAsString
+
+          if(lastCommit.isEmpty){
+            val contentCommit = s"tree ${treeCommit}\n\n${message}"
+            val shaCommit = sha1Hash(contentCommit)
+            getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
+            currentBranch.overwrite(shaCommit)
+          } else {
+            val contentCommit = s"tree ${treeCommit}\nparent ${lastCommit}\n\n${message}"
+            val shaCommit = sha1Hash(contentCommit)
+            getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
+            currentBranch.overwrite(shaCommit)
+          }
+
         }
 
       case Right(error) => println(error)
