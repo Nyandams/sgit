@@ -34,6 +34,6 @@ object Blob {
     val dirBlob = sha.substring(0,2)
     val nameBlob = sha.substring(2)
     (repo/".sgit"/"objects"/dirBlob/nameBlob).createFileIfNotExists(createParents = true).overwrite(textFile)
-    Map(indexPathCut -> nameBlob)
+    Map(indexPathCut -> sha)
   }
 }

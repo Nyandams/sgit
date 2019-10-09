@@ -5,6 +5,9 @@ import java.nio.file.Files
 
 import better.files._
 import org.scalatest._
+import org.scalatest.{FlatSpec, FunSpec, Matchers, BeforeAndAfterEach}
+import org.scalacheck._
+
 
 class InitSpec extends FlatSpec with BeforeAndAfterEach {
   var tempDir: io.File = Files.createTempDirectory("testRepo").toFile
@@ -68,5 +71,4 @@ class InitSpec extends FlatSpec with BeforeAndAfterEach {
 
     assert(line(0) == "ref: refs/heads/master")
   }
-
 }

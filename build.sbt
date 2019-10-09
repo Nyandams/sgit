@@ -12,7 +12,8 @@ lazy val root = (project in file("."))
     name := "sgit",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test",
     libraryDependencies += "com.github.scopt" % "scopt_2.12" % "4.0.0-RC2",
-    libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
+    libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0",
+    libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.1" % "test"
   )
 
 assemblyOption in assembly := (assemblyOption in assembly).value
