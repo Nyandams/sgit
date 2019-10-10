@@ -18,7 +18,7 @@ object Commit {
 
         if(keys.nonEmpty) {
           val separator = Pattern.quote(System.getProperty("file.separator"))
-          val listSorted = keys.toList.map(src => src.split(separator)).sortBy(f => f.length).reverse
+          val listSorted = keys.toList.map(src => src.split(separator).toList).sortBy(f => f.length).reverse
           if (listSorted.nonEmpty) {
             val sizeMax = listSorted.head.length
             val treeCommit = tree(srcs = listSorted, size = sizeMax, mapIndex = mapIndex, repo = repo)
@@ -91,7 +91,7 @@ object Commit {
    * @return
    */
   @tailrec
-  def tree(srcs: List[Array[String]], size: Int, mapParent: Map[String, Array[String]] = Map(), mapIndex: Map[String, String], repo: File): String = {
+  def tree(srcs: List[List[String]], size: Int, mapParent: Map[String, List[String]] = Map(), mapIndex: Map[String, String], repo: File): String = {
     if (size == 0) {
       val contentTreeCommit = mapParent("") mkString "\n"
       val sha = sha1Hash(contentTreeCommit)
@@ -130,7 +130,7 @@ object Commit {
     (repo/".sgit"/"objects"/dirTree/nameTree)
   }
 
-  def removeLastMax(a: Array[String], size: Int): Array[String] = {
+  def removeLastMax(a: List[String], size: Int): List[String] = {
     if (a.length == size) {
       a.slice(0, a.length - 1)
     } else {
@@ -139,7 +139,7 @@ object Commit {
   }
 
   @tailrec
-  def updateMapParent(mapParent: Map[String, Array[String]],listParents: List[String], listChildren: List[String]): Map[String, Array[String]] = {
+  def updateMapParent(mapParent: Map[String, List[String]],listParents: List[String], listChildren: List[String]): Map[String, List[String]] = {
     if (listParents == Nil){
       mapParent
     } else {
@@ -149,13 +149,13 @@ object Commit {
 
   }
 
-  def updateMapParentElement(mapParent: Map[String, Array[String]], parent: String, child: String): Map[String, Array[String]] = {
+  def updateMapParentElement(mapParent: Map[String, List[String]], parent: String, child: String): Map[String, List[String]] = {
     if (mapParent.contains(parent)){
-      val oldArray = mapParent(parent)
-      val newArray = oldArray.patch(0, Array(child), 0)
-      mapParent + (parent -> newArray)
+      val oldList = mapParent(parent)
+      val newList = oldList.patch(0, List(child), 0)
+      mapParent + (parent -> newList)
     } else {
-      mapParent + (parent -> Array(child))
+      mapParent + (parent -> List(child))
     }
   }
 
