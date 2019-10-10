@@ -28,8 +28,17 @@ object Status {
       repo.listRecursively
       .toSet.filter(f => f.isRegularFile)
       .filter(f => !f.pathAsString.contains(".sgit"))
-    println(s"${RESET}${GREEN}yes${RESET}")
-    println(allFileRepoSet)
+      .map(f => repo.relativize(f).toString)
+
+    val untrackedList = allFileRepoSet.diff(indexSet)
+    val untrackedFilesStringArray = untrackedList.map(src => s"\t${src}") mkString "\n"
+
+    println(untrackedList)
+    println(s"Untracked files:\n  (use git add <file>... to include in what will be committed)")
+
+    print(s"${RED}")
+    println(untrackedFilesStringArray)
+    print(s"${RESET}")
 
   }
 

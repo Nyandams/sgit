@@ -16,7 +16,7 @@ object Commit {
         val headFile = (repo / ".sgit" / "HEAD").contentAsString.split(" ")(1)
         val currentBranch = (repo / ".sgit" / headFile).createFileIfNotExists()
 
-        if(keys.size > 0) {
+        if(keys.nonEmpty) {
           val separator = Pattern.quote(System.getProperty("file.separator"))
           val listSorted = keys.toList.map(src => src.split(separator)).sortBy(f => f.length).reverse
           if (listSorted.nonEmpty) {
@@ -28,7 +28,7 @@ object Commit {
             if (lastCommit.isEmpty) {
               val contentCommit = s"tree ${treeCommit}\n\n${message}"
               val shaCommit = sha1Hash(contentCommit)
-              getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
+              getFileSubDir(repo, shaCommit).createFileIfNotExists(createParents = true).overwrite(contentCommit)
               currentBranch.overwrite(shaCommit)
               println(s"[${currentBranch.name} (root-commit) ${shaCommit.slice(0,8)}] ${message}")
             } else {
@@ -39,7 +39,7 @@ object Commit {
                   } else {
                     val contentCommit = s"tree ${treeCommit}\nparent ${lastCommit}\n\n${message}"
                     val shaCommit = sha1Hash(contentCommit)
-                    getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
+                    getFileSubDir(repo, shaCommit).createFileIfNotExists(createParents = true).overwrite(contentCommit)
                     currentBranch.overwrite(shaCommit)
                     println(s"[${currentBranch.name} ${shaCommit.slice(0,8)}] ${message}")
                   }
