@@ -3,7 +3,9 @@ import ui.cli.Parser.getConfig
 import command.Init._
 import command.Add._
 import command.Commit._
+import command.Status._
 import util.FileTool._
+
 
 object Dispatcher {
   def dispatch(arguments: Array[String]): Unit ={
@@ -14,6 +16,7 @@ object Dispatcher {
           case "init" => init()
           case "add" => add(repo, config.files)
           case "commit" => commit(repo, config.commitMessage)
+          case "status" => status(repo)
         }
         case None =>
         case _ =>

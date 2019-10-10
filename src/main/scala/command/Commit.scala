@@ -12,33 +12,75 @@ object Commit {
   def commit(repo: File, message: String): Unit = {
     getMapFromIndex(repo) match {
       case Left(mapIndex) =>
-
         val keys = mapIndex.keySet
-        val separator = Pattern.quote(System.getProperty("file.separator"))
-        val listSorted = keys.toList.map(src => src.split(separator)).sortBy(f => f.length).reverse
-        if (listSorted.nonEmpty) {
-          val sizeMax = listSorted.head.length
-          val treeCommit = tree(srcs = listSorted, size = sizeMax, mapIndex = mapIndex, repo = repo)
+        val headFile = (repo / ".sgit" / "HEAD").contentAsString.split(" ")(1)
+        val currentBranch = (repo / ".sgit" / headFile).createFileIfNotExists()
 
-          val headFile = (repo/".sgit"/"HEAD").contentAsString.split(" ")(1)
-          val currentBranch = (repo/".sgit"/headFile).createFileIfNotExists()
-          val lastCommit = currentBranch.contentAsString
+        if(keys.size > 0) {
+          val separator = Pattern.quote(System.getProperty("file.separator"))
+          val listSorted = keys.toList.map(src => src.split(separator)).sortBy(f => f.length).reverse
+          if (listSorted.nonEmpty) {
+            val sizeMax = listSorted.head.length
+            val treeCommit = tree(srcs = listSorted, size = sizeMax, mapIndex = mapIndex, repo = repo)
 
-          if(lastCommit.isEmpty){
-            val contentCommit = s"tree ${treeCommit}\n\n${message}"
-            val shaCommit = sha1Hash(contentCommit)
-            getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
-            currentBranch.overwrite(shaCommit)
-          } else {
-            val contentCommit = s"tree ${treeCommit}\nparent ${lastCommit}\n\n${message}"
-            val shaCommit = sha1Hash(contentCommit)
-            getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
-            currentBranch.overwrite(shaCommit)
+            val lastCommit = currentBranch.contentAsString
+
+            if (lastCommit.isEmpty) {
+              val contentCommit = s"tree ${treeCommit}\n\n${message}"
+              val shaCommit = sha1Hash(contentCommit)
+              getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
+              currentBranch.overwrite(shaCommit)
+              println(s"[${currentBranch.name} (root-commit) ${shaCommit.slice(0,8)}] ${message}")
+            } else {
+              getMapFromCommit(repo, lastCommit) match {
+                case Left(mapCommit) =>
+                  if (treeCommit == mapCommit("tree")) {
+                    println(s"On branch ${currentBranch.name}\nNothing to commit, working tree clean")
+                  } else {
+                    val contentCommit = s"tree ${treeCommit}\nparent ${lastCommit}\n\n${message}"
+                    val shaCommit = sha1Hash(contentCommit)
+                    getFileSubDir(repo, shaCommit).createFileIfNotExists(true).overwrite(contentCommit)
+                    currentBranch.overwrite(shaCommit)
+                    println(s"[${currentBranch.name} ${shaCommit.slice(0,8)}] ${message}")
+                  }
+                case Right(error) => println(error)
+              }
+
+            }
+
           }
-
+        } else {
+          println(s"On branch ${currentBranch.name}\n\nInitial commit\n\nNothing to commit")
         }
 
       case Right(error) => println(error)
+    }
+  }
+
+  /**
+   * src -> SHA-1
+   */
+  def getMapFromCommit(repo: File, sha1Commit: String): Either[Map[String, String], String] = {
+    val commitFile = repo/".sgit"/"objects"/sha1Commit.substring(0, 2)/sha1Commit.substring(2)
+
+    if(commitFile.exists) {
+      Left(getMapFromCommitIterator(commitFile.lineIterator))
+    } else {
+      Right(s"commit ${sha1Commit} not found")
+    }
+  }
+
+  def getMapFromCommitIterator(iterator: Iterator[String]): Map[String, String] ={
+    if (iterator.hasNext){
+      val line = iterator.next()
+      val lineSplit = line.split(" ")
+      if(lineSplit.length == 2){
+        Map(lineSplit(0) -> lineSplit(1)) ++ getMapFromCommitIterator(iterator)
+      } else {
+        Map("msg" -> iterator.next())
+      }
+    } else {
+      Map()
     }
   }
 

@@ -28,12 +28,11 @@ object Blob {
     val textFile = file.contentAsString
     val sha = file.sha1.toLowerCase()
 
-    val indexPath = file.pathAsString
-    val indexPathCut = indexPath.replace(repo.pathAsString + separator, "")
+    val indexPathCut = repo.relativize(file)
 
     val dirBlob = sha.substring(0,2)
     val nameBlob = sha.substring(2)
     (repo/".sgit"/"objects"/dirBlob/nameBlob).createFileIfNotExists(createParents = true).overwrite(textFile)
-    Map(indexPathCut -> sha)
+    Map(indexPathCut.toString -> sha)
   }
 }
