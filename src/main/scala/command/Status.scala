@@ -16,14 +16,14 @@ object Status {
       case Left(mapIndex) =>
         val keys = mapIndex.keySet
 
-        showModifiedFiles(repo, mapIndex)
-        showDeletedFiles(repo, keys)
-        showUntrackedFiles(repo, keys)
+        print(getChangesToCommit(repo, keys))
+        print(getNotStagedChanges(repo, mapIndex))
+        print(getUntrackedFiles(repo, keys))
       case Right(error) => println(error)
     }
   }
 
-  def showUntrackedFiles(repo: File, indexSet: Set[String]): Unit = {
+  def getUntrackedFiles(repo: File, indexSet: Set[String]): String = {
     val allFileRepoSet =
       repo.listRecursively
       .toSet.filter(f => f.isRegularFile)
@@ -33,21 +33,40 @@ object Status {
     val untrackedList = allFileRepoSet.diff(indexSet)
     val untrackedFilesStringArray = untrackedList.map(src => s"\t${src}") mkString "\n"
 
-    println(untrackedList)
-    println(s"Untracked files:\n  (use git add <file>... to include in what will be committed)")
-
-    print(s"${RED}")
-    println(untrackedFilesStringArray)
-    print(s"${RESET}")
-
+    if(untrackedFilesStringArray.nonEmpty){
+      return s"Untracked files:\n  (use sgit add <file>... to include in what will be committed)\n${RED}${untrackedFilesStringArray}${RESET}"
+    } else {
+      return ""
+    }
   }
 
-  def showModifiedFiles(repo: File, mapIndex: Map[String, String]): Unit = {
+  def getNotStagedChanges(repo: File, mapIndex: Map[String, String]): String = {
 
+    val indexedFiles = mapIndex.keySet
+    val allFileRepoSet =
+      repo.listRecursively
+        .toSet.filter(f => f.isRegularFile)
+        .filter(f => !f.pathAsString.contains(".sgit"))
+        .map(f => repo.relativize(f).toString)
+
+    val deletedFiles = indexedFiles.diff(allFileRepoSet)
+    val deletedFilesStringArray = deletedFiles.map(src => s"\tdeleted:    ${src}") mkString "\n"
+
+    val existingIndexedFiles = indexedFiles.diff(deletedFiles)
+    println(mapIndex)
+    //println(existingIndexedFiles.map(f => sha1Hash((repo/f).contentAsString)))
+    val modifiedFiles = existingIndexedFiles.filter(f => mapIndex(f) != sha1Hash((repo/f).contentAsString))
+    val modifiedFilesStringArray = modifiedFiles.map(src => s"\tmodified:   ${src}") mkString "\n"
+
+    if(deletedFilesStringArray.nonEmpty || modifiedFilesStringArray.nonEmpty){
+      return s"Changes not staged for commit:\n  (use sgit add/rm <file>... to update what will be committed)\n${RED}${modifiedFilesStringArray}\n${deletedFilesStringArray}${RESET}\n"
+    } else {
+      return ""
+    }
   }
 
-  def showDeletedFiles(repo: File, indexSet: Set[String]): Unit = {
-
+  def getChangesToCommit(repo: File, indexSet: Set[String]): String = {
+    return ""
   }
 
 }
