@@ -1,9 +1,10 @@
 package ui.cli
-import ui.cli.Parser.getConfig
-import command.Init._
 import command.Add._
 import command.Commit._
+import command.Init._
 import command.Status._
+import command.Rm._
+import ui.cli.Parser.getConfig
 import util.FileTool._
 
 
@@ -15,6 +16,7 @@ object Dispatcher {
         case Some(config) => config.mode match {
           case "init" => init()
           case "add" => add(repo, config.files)
+          case "rm" => rm(repo, config.files)
           case "commit" => commit(repo, config.commitMessage)
           case "status" => status(repo)
         }

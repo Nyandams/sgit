@@ -24,6 +24,16 @@ object Parser {
             .text("list of files to add"),
         )
 
+      cmd(name = "rm")
+        .action((_, c) => c.copy(mode = "rm"))
+        .text("Remove files from the working tree and from the index")
+        .children(
+          arg[String](name = "<file>...")
+            .unbounded()
+            .action((x, c) => c.copy(files = c.files :+ x))
+            .text("list of files to remove"),
+        )
+
       cmd(name = "commit")
         .action((_, c) => c.copy(mode = "commit"))
         .text("Record changes to the repository")

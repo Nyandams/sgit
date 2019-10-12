@@ -53,8 +53,6 @@ object Status {
     val deletedFilesStringArray = deletedFiles.map(src => s"\tdeleted:    ${src}") mkString "\n"
 
     val existingIndexedFiles = indexedFiles.diff(deletedFiles)
-    println(mapIndex)
-    //println(existingIndexedFiles.map(f => sha1Hash((repo/f).contentAsString)))
     val modifiedFiles = existingIndexedFiles.filter(f => mapIndex(f) != sha1Hash((repo/f).contentAsString))
     val modifiedFilesStringArray = modifiedFiles.map(src => s"\tmodified:   ${src}") mkString "\n"
 
