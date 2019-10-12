@@ -15,13 +15,13 @@ object Add {
     // in the repo but not sgit
     val validFilesToAdd = filesToAdd.filter(f => f.pathAsString.contains(repo.pathAsString))
                                     .filter(f => !f.pathAsString.contains(".sgit/"))
+
     val indexMapAdded = handleBlobsAdding(repo, validFilesToAdd)
 
     getMapFromIndex(repo) match {
       case Left(mapOldIndex) => {
-        val mapCleanOldIndex = mapOldIndex.filterKeys(key => (repo/key).exists)
-        val mapDiff = (mapCleanOldIndex.toSet diff indexMapAdded.toSet).toMap
-        val indexMapFinal = indexMapAdded ++ mapDiff
+        val mapDiff = (mapOldIndex.toSet diff indexMapAdded.toSet).toMap
+        val indexMapFinal = mapDiff ++ indexMapAdded
         updateIndex(repo, indexMapFinal)
       }
       case Right(error) => println(error)

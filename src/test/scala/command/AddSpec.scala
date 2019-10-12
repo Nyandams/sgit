@@ -4,6 +4,7 @@ import java.nio.file.Files
 import java.io.File.separator
 import util.FileTool.sha1Hash
 import better.files._
+import objects.Index._
 import org.scalatest.{FlatSpec, FunSpec, Matchers, BeforeAndAfterEach}
 
 
@@ -60,6 +61,18 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
     val sha = sha1Hash(f.contentAsString)
     val blob = tempDirPath/".sgit"/"objects"/sha.substring(0,2)/sha.substring(2)
     assert(blob.contentAsString == f.contentAsString)
+  }
+
+  it should "modify the sha1 of a file added that got modified" in {
+    val f = (tempDirPath/"1").createFile()
+    f.appendText("this is file 2")
+    val sha = sha1Hash(f.contentAsString)
+    Add.add(tempDirPath, Array(f.pathAsString))
+    f.appendText("this is file 3")
+    Add.add(tempDirPath, Array(f.pathAsString))
+
+    pending
+
   }
 
 }
