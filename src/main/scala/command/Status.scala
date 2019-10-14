@@ -3,7 +3,9 @@ package command
 import Console.{GREEN, RED, RESET, YELLOW_B, UNDERLINED}
 import better.files._
 import objects.Index.getMapFromIndex
-import util.FileTool.{sha1Hash, getUserDirectory}
+import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
+import util.BranchTool.{getCurrentBranch}
+import util.CommitUtil.getMapBlobCommit
 
 object Status {
   /**
@@ -12,37 +14,44 @@ object Status {
    * @param repo
    */
   def status(repo: File, userDir: File = getUserDirectory): Unit = {
-    val headFile = (repo / ".sgit" / "HEAD").contentAsString.split(" ")(1)
-    val currentBranch = (repo / ".sgit" / headFile).createFileIfNotExists()
-    println(s"On branch ${currentBranch.name}\n")
+    getCurrentBranch(repo) match {
+      case Left(currentBranch) =>
+        println(s"On branch ${currentBranch.name}\n")
+        if (currentBranch.isEmpty) println("No commits yet\n")
+        else {
+          val sha1Commit = currentBranch.contentAsString
+          getMapBlobCommit(repo, sha1Commit) match {
+            case Left(map) => println(map)
+            case Right(error) => println(error)
+          }
+        }
 
-    if (currentBranch.isEmpty) println("No commits yet\n")
+        getMapFromIndex(repo) match {
+          case Left(mapIndex) =>
 
-    getMapFromIndex(repo) match {
-      case Left(mapIndex) =>
-        val keys = mapIndex.keySet
+            val keys = mapIndex.keySet
 
-        val changesToCommit = getChangesToCommit(repo, keys, userDir)
-        val notStagedChanges = getNotStagedChanges(repo, mapIndex, userDir)
-        val untrackedFiles = getUntrackedFiles(repo, keys, userDir)
+            val changesToCommit = getChangesToCommit(repo, keys, userDir)
+            val notStagedChanges = getNotStagedChanges(repo, mapIndex, userDir)
+            val untrackedFiles = getUntrackedFiles(repo, keys, userDir)
 
-        if (changesToCommit.nonEmpty) println(changesToCommit)
-        if (notStagedChanges.nonEmpty) println(notStagedChanges)
-        if(untrackedFiles.nonEmpty) println(untrackedFiles)
+            if (changesToCommit.nonEmpty) println(changesToCommit)
+            if (notStagedChanges.nonEmpty) println(notStagedChanges)
+            if(untrackedFiles.nonEmpty) println(untrackedFiles)
 
-        if(changesToCommit.isEmpty && notStagedChanges.nonEmpty) println("nothing added to commit but untracked files present (use \"git add\" to track)")
+            if(changesToCommit.isEmpty && notStagedChanges.nonEmpty) println("nothing added to commit but untracked files present (use \"git add\" to track)")
+          case Right(error) => println(error)
+
       case Right(error) => println(error)
+    }
+
     }
   }
 
   def getUntrackedFiles(repo: File, indexSet: Set[String], userDir: File): String = {
-    val allFileRepoSet =
-      repo.listRecursively
-      .toSet.filter(f => f.isRegularFile)
-      .filter(f => !f.pathAsString.contains(".sgit"))
-      .map(f => repo.relativize(f).toString)
+    val allFileRepo = allFileRepoSet(repo)
 
-    val untrackedList = allFileRepoSet.diff(indexSet)
+    val untrackedList = allFileRepo.diff(indexSet)
     val untrackedFilesStringArray = untrackedList.map(src => s"\t${  userDir.relativize(repo/src)  }") mkString "\n"
 
     if(untrackedFilesStringArray.nonEmpty){
@@ -55,13 +64,9 @@ object Status {
   def getNotStagedChanges(repo: File, mapIndex: Map[String, String], userDir: File): String = {
 
     val indexedFiles = mapIndex.keySet
-    val allFileRepoSet =
-      repo.listRecursively
-        .toSet.filter(f => f.isRegularFile)
-        .filter(f => !f.pathAsString.contains(".sgit"))
-        .map(f => repo.relativize(f).toString)
+    val allFileRepo = allFileRepoSet(repo)
 
-    val deletedFiles = indexedFiles.diff(allFileRepoSet)
+    val deletedFiles = indexedFiles.diff(allFileRepo)
     val deletedFilesStringArray = deletedFiles.map(src => s"\tdeleted:    ${ userDir.relativize(repo/src) }") mkString "\n"
 
     val existingIndexedFiles = indexedFiles.diff(deletedFiles)

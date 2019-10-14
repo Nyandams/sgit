@@ -16,7 +16,6 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
     Init.init(tempDirPath)
-    val ex = (tempDirPath/".sgit").exists
   }
 
   "The add command" should "run" in {
@@ -64,15 +63,16 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
   }
 
   it should "modify the sha1 of a file added that got modified" in {
+    val index = (tempDirPath/".sgit/index")
     val f = (tempDirPath/"1").createFile()
     f.appendText("this is file 2")
-    val sha = sha1Hash(f.contentAsString)
+    val shaIndex = sha1Hash(index.contentAsString)
     Add.add(tempDirPath, Array(f.pathAsString))
     f.appendText("this is file 3")
     Add.add(tempDirPath, Array(f.pathAsString))
+    val newShaIndex = sha1Hash(index.contentAsString)
 
-    pending
-
+    assert(shaIndex != newShaIndex)
   }
 
 }

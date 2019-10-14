@@ -44,11 +44,19 @@ object FileTool {
     }
   }
 
+  // Bug Sha1 with folder d3 containing d3f2 and d3f1 file, only 39chars
   def sha1Hash(s: String): String = {
     val md = MessageDigest.getInstance("SHA1")
     val digest = md.digest(s.getBytes)
-    val bigInt = new BigInteger(1,digest)
+    val bigInt = new BigInteger(1, digest)
     val hashedString = bigInt.toString(16)
     hashedString
+  }
+
+  def allFileRepoSet(repo: File): Set[String] ={
+    repo.listRecursively
+      .toSet.filter(f => f.isRegularFile)
+      .filter(f => !f.pathAsString.contains(".sgit"))
+      .map(f => repo.relativize(f).toString)
   }
 }
