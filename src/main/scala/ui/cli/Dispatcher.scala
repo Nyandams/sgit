@@ -12,7 +12,7 @@ object Dispatcher {
   def dispatch(arguments: Array[String]): Unit ={
     getSgitRec() match {
       // command that need a repo to be executed
-      case Left(repo) => getConfig(arguments) match {
+      case Right(repo) => getConfig(arguments) match {
         case Some(config) => config.mode match {
           case "init" => init()
           case "add" => add(repo, config.files)
@@ -24,7 +24,7 @@ object Dispatcher {
         case _ =>
       }
       //  command that doesn't need a repo to be launched
-      case Right(error) => getConfig(arguments) match {
+      case Left(error) => getConfig(arguments) match {
         case Some(config) => config.mode match {
           case "init" => init()
           case _ => println(error)

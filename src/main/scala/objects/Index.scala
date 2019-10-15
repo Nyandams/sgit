@@ -18,13 +18,13 @@ object Index {
   /**
    * src -> SHA-1
    */
-  def getMapFromIndex(repo: File): Either[Map[String, String], String] = {
+  def getMapFromIndex(repo: File): Either[String, Map[String, String]] = {
     val indexFile = repo/".sgit"/"index"
 
     if(indexFile.exists) {
-      Left(getMapFromIndexIterator(indexFile.lineIterator))
+      Right(getMapFromIndexIterator(indexFile.lineIterator))
     } else {
-      Right("file index not found")
+      Left("file index not found")
     }
   }
 

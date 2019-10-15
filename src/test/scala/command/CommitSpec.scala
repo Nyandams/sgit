@@ -55,8 +55,8 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
     Commit.commit(tempDirPath, "1st commit")
     val lastCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     getFileFromSha(tempDirPath, lastCommit) match {
-      case Left(commit) => assert(commit.exists)
-      case Right(error) => assert(false)
+      case Right(commit) => assert(commit.exists)
+      case Left(error) => assert(false)
     }
   }
 
@@ -67,8 +67,8 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
     val treeFolderContent = s"blob ${shaf2} 2"
     val shaTree = sha1Hash(treeFolderContent)
     getFileFromSha(tempDirPath, shaTree) match {
-      case Left(treeFile) => assert(treeFile.exists)
-      case Right(error) => assert(false)
+      case Right(treeFile) => assert(treeFile.exists)
+      case Left(error) => assert(false)
     }
   }
 

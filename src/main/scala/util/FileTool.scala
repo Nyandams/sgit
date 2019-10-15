@@ -18,12 +18,12 @@ object FileTool {
    * @return
    */
   @tailrec
-  def getSgitRec(file: File = getUserDirectory): Either[File, String] = {
+  def getSgitRec(file: File = getUserDirectory): Either[String, File] = {
     val sgitDir = file / ".sgit"
     if (sgitDir.isDirectory) {
-      Left(file)
+      Right(file)
     } else if (file.parent == null) {
-      Right("sgit repository not found")
+      Left("sgit repository not found")
     } else {
       getSgitRec(file.parent)
     }

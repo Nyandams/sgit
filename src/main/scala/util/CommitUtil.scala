@@ -6,24 +6,24 @@ import util.ObjectUtil.getFileFromSha
 import scala.annotation.tailrec
 
 object CommitUtil {
-  def getMapBlobCommit(repo: File, shaCommit: String): Either[Map[String, String], String] = {
+  def getMapBlobCommit(repo: File, shaCommit: String): Either[String, Map[String, String]] = {
     getCurrentBranch(repo) match {
-      case Left(currentBranch) =>
+      case Right(currentBranch) =>
         val lastCommit = currentBranch.contentAsString
         getMapFromCommit(repo, lastCommit) match {
-          case Left(mapCommit) =>
+          case Right(mapCommit) =>
             val treeCommit = mapCommit("tree")
             getBlobMapFromTree(repo, treeCommit)
-          case Right(error) => Right(error)
+          case Left(error) => Left(error)
         }
-      case Right(error) => Right(error)
+      case Left(error) => Left(error)
     }
   }
 
   /**
    * src -> SHA-1
    */
-  def getMapFromCommit(repo: File, sha1Commit: String): Either[Map[String, String], String] = {
+  def getMapFromCommit(repo: File, sha1Commit: String): Either[String, Map[String, String]] = {
 
     @tailrec
     def getMapFromCommitIterator(iterator: Iterator[String], mapCommit: Map[String, String]): Map[String, String] ={
@@ -43,8 +43,8 @@ object CommitUtil {
     }
 
     getFileFromSha(repo, sha1Commit) match {
-      case Left(commitFile) => Left(getMapFromCommitIterator(commitFile.lineIterator, Map()))
-      case Right(error) => Right(error)
+      case Right(commitFile) => Right(getMapFromCommitIterator(commitFile.lineIterator, Map()))
+      case Left(error) => Left(error)
     }
   }
 
@@ -54,9 +54,9 @@ object CommitUtil {
    * src -> SHA-1
    * need refactoring
    */
-  def getBlobMapFromTree(repo: File, sha1Commit: String, parent : String = ""): Either[Map[String, String], String] = {
+  def getBlobMapFromTree(repo: File, sha1Commit: String, parent : String = ""): Either[String, Map[String, String]] = {
 
-    def getMapFromTreeIterator(iterator: Iterator[String], mapTree: Map[String, String], parent: String): Either[Map[String, String], String] = {
+    def getMapFromTreeIterator(iterator: Iterator[String], mapTree: Map[String, String], parent: String): Either[String, Map[String, String]] = {
       if (iterator.hasNext){
         val line = iterator.next()
         val lineSplit = line.split(" ")
@@ -64,13 +64,13 @@ object CommitUtil {
           if (lineSplit(0) == "tree"){
             val newParent = if(parent == "") lineSplit(2) else parent + "/"+lineSplit(2)
             getBlobMapFromTree(repo, lineSplit(1), newParent) match {
-              case Left(mapTree) =>
+              case Right(mapTree) =>
                 getMapFromTreeIterator(iterator, mapTree, parent) match {
-                  case Left(mapIterator) =>
-                    Left(mapIterator)
-                  case Right(error) => Right(error)
+                  case Right(mapIterator) =>
+                    Right(mapIterator)
+                  case Left(error) => Left(error)
                 }
-              case Right(error) => Right(error)
+              case Left(error) => Left(error)
             }
 
           } else { // blob
@@ -78,25 +78,25 @@ object CommitUtil {
 
             val newMap = mapTree + (blobSrc -> lineSplit(1))
             getMapFromTreeIterator(iterator, newMap, parent) match {
-              case Left(mapIterator) =>
-                Left(mapIterator)
-              case Right(error) => Right(error)
+              case Right(mapIterator) =>
+                Right(mapIterator)
+              case Left(error) => Left(error)
             }
           }
         } else {
-          Right("bad format in tree")
+          Left("bad format in tree")
         }
       } else {
-        Left(mapTree)
+        Right(mapTree)
       }
     }
 
     getFileFromSha(repo, sha1Commit) match {
-      case Left(treeFile) => getMapFromTreeIterator(treeFile.lineIterator, Map(), parent) match {
-        case Left(mapTree) => Left(mapTree)
-        case Right(error) => Right(error)
+      case Right(treeFile) => getMapFromTreeIterator(treeFile.lineIterator, Map(), parent) match {
+        case Right(mapTree) => Right(mapTree)
+        case Left(error) => Left(error)
       }
-      case Right(error) => Right(error)
+      case Left(error) => Left(error)
     }
   }
 

@@ -6,16 +6,16 @@ object BranchTool {
   def getHeadFilePath(repo: File): Either[String, String] = {
     val headFile = (repo / ".sgit" / "HEAD")
     if (headFile.exists){
-      Left(headFile.contentAsString.split(" ")(1))
+      Right(headFile.contentAsString.split(" ")(1))
     } else {
-      Right("HEAD not found")
+      Left("HEAD not found")
     }
   }
 
-  def getCurrentBranch(repo: File): Either[File, String] = {
+  def getCurrentBranch(repo: File): Either[String, File] = {
     getHeadFilePath(repo) match {
-      case Left(headFile) => Left((repo / ".sgit" / headFile).createFileIfNotExists())
-      case Right(error) => Right(error)
+      case Right(headFile) => Right((repo / ".sgit" / headFile).createFileIfNotExists())
+      case Left(error) => Left(error)
     }
   }
 }

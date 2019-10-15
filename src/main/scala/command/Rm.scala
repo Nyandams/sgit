@@ -15,13 +15,13 @@ object Rm {
     filesToDelete.filter(f => f.exists).map(f => f.delete())
 
     getMapFromIndex(repo) match {
-      case Left(mapOldIndex) => {
+      case Right(mapOldIndex) => {
         val relativizedDeletedFile = filesToDelete.map(file => repo.relativize(file).toString)
 
         val mapWithoutDeleted = mapOldIndex.filterKeys(src => !relativizedDeletedFile.contains(src))
         updateIndex(repo, mapWithoutDeleted)
       }
-      case Right(error) => println(error)
+      case Left(error) => println(error)
     }
   }
 }

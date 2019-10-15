@@ -14,35 +14,34 @@ object Status {
    * @param repo
    */
   def status(repo: File, userDir: File = getUserDirectory): Unit = {
-    getCurrentBranch(repo) match {
-      case Left(currentBranch) =>
-        println(s"On branch ${currentBranch.name}\n")
-        if (currentBranch.isEmpty) println("No commits yet\n")
-        else {
-          val sha1Commit = currentBranch.contentAsString
-          getMapBlobCommit(repo, sha1Commit) match {
-            case Left(map) => println(map)
-            case Right(error) => println(error)
-          }
-        }
 
         getMapFromIndex(repo) match {
-          case Left(mapIndex) =>
-
+          case Right(mapIndex) =>
             val keys = mapIndex.keySet
-
-            val changesToCommit = getChangesToCommit(repo, keys, userDir)
             val notStagedChanges = getNotStagedChanges(repo, mapIndex, userDir)
             val untrackedFiles = getUntrackedFiles(repo, keys, userDir)
 
-            if (changesToCommit.nonEmpty) println(changesToCommit)
-            if (notStagedChanges.nonEmpty) println(notStagedChanges)
-            if(untrackedFiles.nonEmpty) println(untrackedFiles)
+            getCurrentBranch(repo) match {
+              case Right(currentBranch) =>
+                println(s"On branch ${currentBranch.name}\n")
+                var changesToCommit = ""
+                if (currentBranch.isEmpty) {
+                  println("No commits yet\n")
+                  changesToCommit = getChangesToCommit(repo, mapIndex, Map(), userDir)
+                } else {
+                  val sha1Commit = currentBranch.contentAsString
+                  val mapCommit = getMapBlobCommit(repo, sha1Commit).getOrElse(Map())
+                  changesToCommit = getChangesToCommit(repo, mapIndex, mapCommit, userDir)
+                }
+                if(changesToCommit.nonEmpty) println(changesToCommit)
+                if (notStagedChanges.nonEmpty) println(notStagedChanges)
+                if(untrackedFiles.nonEmpty) println(untrackedFiles)
 
-            if(changesToCommit.isEmpty && notStagedChanges.nonEmpty) println("nothing added to commit but untracked files present (use \"git add\" to track)")
-          case Right(error) => println(error)
+                if(changesToCommit.isEmpty && notStagedChanges.nonEmpty) println("nothing added to commit but untracked files present (use \"git add\" to track)")
+              case Left(error) => println(error)
+          case Left(error) => println(error)
 
-      case Right(error) => println(error)
+      case Left(error) => println(error)
     }
 
     }
@@ -80,8 +79,32 @@ object Status {
     }
   }
 
-  def getChangesToCommit(repo: File, indexSet: Set[String], userDir: File): String = {
-    return ""
+  def getStagedAddition(repo: File, mapIndex: Map[String, String], mapCommit: Map[String, String], userDir: File): String = {
+    val newAdditions = mapIndex.keySet.diff(mapCommit.keySet)
+    newAdditions.map(src => s"\tnew file:   ${ userDir.relativize(repo/src) }") mkString "\n"
+  }
+
+  def getStagedDeletion(repo: File, mapIndex: Map[String, String], mapCommit: Map[String, String], userDir: File): String = {
+    val newDeletions = mapCommit.keySet.diff(mapIndex.keySet)
+    newDeletions.map(src => s"\tdeleted:    ${ userDir.relativize(repo/src) }") mkString "\n"
+  }
+
+  def getStagedModification(repo: File, mapIndex: Map[String, String], mapCommit: Map[String, String], userDir: File): String = {
+    val intersect = mapIndex.keySet.intersect(mapCommit.keySet)
+    val newModifiedFiles = intersect.filter(f => mapIndex(f) != mapCommit(f))
+    newModifiedFiles.map(src => s"\tmodified:   ${ userDir.relativize(repo/src) }") mkString "\n"
+  }
+
+  def getChangesToCommit(repo: File, mapIndex: Map[String, String], mapCommit: Map[String, String], userDir: File): String = {
+    val stagedAddition = getStagedAddition(repo, mapIndex, mapCommit, userDir)
+    val stagedModification = getStagedModification(repo, mapIndex, mapCommit, userDir)
+    val stagedDeletion = getStagedDeletion(repo, mapIndex, mapCommit, userDir)
+
+    if (stagedAddition.nonEmpty || stagedModification.nonEmpty || stagedDeletion.nonEmpty){
+      s"Changes to be comitted:\n ${GREEN}${stagedAddition}\n${stagedModification}\n${stagedDeletion}${RESET}"
+    } else {
+      ""
+    }
   }
 
 }

@@ -13,10 +13,10 @@ object Commit {
 
   def commit(repo: File, message: String): Unit = {
     getMapFromIndex(repo) match {
-      case Left(mapIndex) =>
+      case Right(mapIndex) =>
         val keys = mapIndex.keySet
         getCurrentBranch(repo) match {
-          case Left(currentBranch) =>
+          case Right(currentBranch) =>
             if(keys.nonEmpty) {
               val separator = Pattern.quote(System.getProperty("file.separator"))
               val listSorted = keys.toList.map(src => src.split(separator).toList).sortBy(f => f.length).reverse
@@ -34,7 +34,7 @@ object Commit {
                   println(s"[${currentBranch.name} (root-commit) ${shaCommit.slice(0,8)}] ${message}")
                 } else {
                   getMapFromCommit(repo, lastCommit) match {
-                    case Left(mapCommit) =>
+                    case Right(mapCommit) =>
                       if (treeCommit == mapCommit("tree")) {
                         println(s"On branch ${currentBranch.name}\nNothing to commit, working tree clean")
                       } else {
@@ -44,7 +44,7 @@ object Commit {
                         currentBranch.overwrite(shaCommit)
                         println(s"[${currentBranch.name} ${shaCommit.slice(0,8)}] ${message}")
                       }
-                    case Right(error) => println(error)
+                    case Left(error) => println(error)
                   }
 
                 }
@@ -53,9 +53,9 @@ object Commit {
             } else {
               println(s"On branch ${currentBranch.name}\n\nInitial commit\n\nNothing to commit")
             }
-          case Right(error) => println(error)
+          case Left(error) => println(error)
         }
-      case Right(error) => println(error)
+      case Left(error) => println(error)
     }
   }
 

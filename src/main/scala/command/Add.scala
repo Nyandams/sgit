@@ -19,12 +19,12 @@ object Add {
     val indexMapAdded = handleBlobsAdding(repo, validFilesToAdd)
 
     getMapFromIndex(repo) match {
-      case Left(mapOldIndex) => {
+      case Right(mapOldIndex) => {
         val mapDiff = (mapOldIndex.toSet diff indexMapAdded.toSet).toMap
         val indexMapFinal = mapDiff ++ indexMapAdded
         updateIndex(repo, indexMapFinal)
       }
-      case Right(error) => println(error)
+      case Left(error) => println(error)
     }
   }
 }
