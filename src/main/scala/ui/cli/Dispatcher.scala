@@ -4,6 +4,7 @@ import command.Commit._
 import command.Init._
 import command.Status._
 import command.Rm._
+import command.Tag._
 import ui.cli.Parser.getConfig
 import util.FileTool._
 
@@ -19,6 +20,9 @@ object Dispatcher {
           case "rm" => rm(repo, config.files)
           case "commit" => commit(repo, config.commitMessage)
           case "status" => status(repo)
+          case "tag" =>
+            if (config.tagName.nonEmpty) newTag(repo, config.tagName)
+            else showTags(repo)
         }
         case None =>
         case _ =>

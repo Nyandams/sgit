@@ -66,7 +66,7 @@ object Parser {
         .text("Add a tag reference in refs/tags/.")
         .children(
           arg[String]("<tag name>")
-            .required()
+            .optional()
             .action((x, c) => c.copy(tagName = x))
             .text("name of the tag")
         )
