@@ -1,5 +1,5 @@
 package command
 
-class Diff {
+object Diff {
 
 }

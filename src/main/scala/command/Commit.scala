@@ -102,7 +102,6 @@ object Commit {
   def getFileSubDir(repo: File, sha1: String) : File = {
     val dirTree = sha1.substring(0,2)
     val nameTree = sha1.substring(2)
-    println(sha1)
     (repo/".sgit"/"objects"/dirTree/nameTree)
   }
 

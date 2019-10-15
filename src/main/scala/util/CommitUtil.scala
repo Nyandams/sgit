@@ -90,6 +90,7 @@ object CommitUtil {
         Left(mapTree)
       }
     }
+
     getFileFromSha(repo, sha1Commit) match {
       case Left(treeFile) => getMapFromTreeIterator(treeFile.lineIterator, Map(), parent) match {
         case Left(mapTree) => Left(mapTree)
