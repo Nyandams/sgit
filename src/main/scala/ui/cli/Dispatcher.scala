@@ -5,6 +5,8 @@ import command.Init._
 import command.Status._
 import command.Rm._
 import command.Tag._
+import command.Diff._
+import command.Log._
 import ui.cli.Parser.getConfig
 import util.FileTool._
 
@@ -23,6 +25,8 @@ object Dispatcher {
           case "tag" =>
             if (config.tagName.nonEmpty) newTag(repo, config.tagName)
             else showTags(repo)
+          case "diff" => diff(repo)
+          case "log" => log(repo)
         }
         case None =>
         case _ =>

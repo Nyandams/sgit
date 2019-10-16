@@ -15,6 +15,5 @@ object ObjectUtil {
     } else {
       Left(s"sha1: ${sha} not valid")
     }
-
   }
 }

@@ -26,16 +26,17 @@ object CommitUtil {
   def getMapFromCommit(repo: File, sha1Commit: String): Either[String, Map[String, String]] = {
 
     @tailrec
-    def getMapFromCommitIterator(iterator: Iterator[String], mapCommit: Map[String, String]): Map[String, String] ={
-      if (iterator.hasNext){
-        val line = iterator.next()
+    def loop(lines: List[String], mapCommit: Map[String, String]): Map[String, String] ={
+      if (lines.nonEmpty){
+        val line = lines.head
         val lineSplit = line.split(" ")
         if(lineSplit.length == 2){
           val newMap = mapCommit + (lineSplit(0) -> lineSplit(1))
-          getMapFromCommitIterator(iterator, newMap)
+          loop(lines.tail, newMap)
         } else {
-          val newMap = mapCommit + (("msg" -> iterator.next()))
-          getMapFromCommitIterator(iterator, newMap)
+          val lineMsg = lines.tail.head
+          val newMap = mapCommit + ("msg" -> lineMsg)
+          newMap
         }
       } else {
         mapCommit
@@ -43,7 +44,7 @@ object CommitUtil {
     }
 
     getFileFromSha(repo, sha1Commit) match {
-      case Right(commitFile) => Right(getMapFromCommitIterator(commitFile.lineIterator, Map()))
+      case Right(commitFile) => Right(loop(commitFile.lines.toList, Map()))
       case Left(error) => Left(error)
     }
   }
