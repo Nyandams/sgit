@@ -21,10 +21,10 @@ object Blob {
 
   /**
    * Create the blob of file and return the map corresponding to the index
-   * @param file
-   * @return
+   * @param file file that will be used to create a blob
+   * @return a Map(src -> SHA-1) containing only the filepath and its blob
    */
-  def handleBlobCreation(repo: File, file: File): Map[String, String] ={
+  def handleBlobCreation(repo: File, file: File): Map[String, String] = {
     val textFile = file.contentAsString
     val sha = file.sha1.toLowerCase()
 

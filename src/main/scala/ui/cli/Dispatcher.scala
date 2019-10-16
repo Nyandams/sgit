@@ -7,6 +7,7 @@ import command.Rm._
 import command.Tag._
 import command.Diff._
 import command.Log._
+import command.Branch._
 import ui.cli.Parser.getConfig
 import util.FileTool._
 
@@ -28,6 +29,9 @@ object Dispatcher {
           case "diff" => diff(repo)
           case "log" => log(repo)
           case "branch" =>
+            if (config.file.nonEmpty) newBranch(repo, config.file)
+            else if (config.verbose) showBranchVerbose(repo)
+            else showBranch(repo)
         }
         case None =>
         case _ =>

@@ -4,6 +4,11 @@ import util.FileTool._
 import annotation.tailrec
 
 object Index {
+  /**
+   * Replace the Index with a new Index that contains the information of indexMap
+   * @param repo directory of the sgit repo
+   * @param indexMap Map(src -> SHA-1) of the new index
+   */
   def updateIndex(repo: File, indexMap: Map[String,String]) = {
     val indexFile = repo/".sgit"/"index"
     if (indexFile.exists){
@@ -16,7 +21,9 @@ object Index {
   }
 
   /**
-   * src -> SHA-1
+   * Return a map corresponding to the index
+   * @param repo directory of the sgit repo
+   * @return Map(src -> SHA-1)
    */
   def getMapFromIndex(repo: File): Either[String, Map[String, String]] = {
     val indexFile = repo/".sgit"/"index"

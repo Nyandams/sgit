@@ -12,6 +12,11 @@ object BranchTool {
     }
   }
 
+  /**
+   * Return the file corresponding to the content of HEAD
+   * @param repo directory of the sgit repo
+   * @return Either[error, File]
+   */
   def getCurrentBranch(repo: File): Either[String, File] = {
     getHeadFilePath(repo) match {
       case Right(headFile) => Right((repo / ".sgit" / headFile).createFileIfNotExists())

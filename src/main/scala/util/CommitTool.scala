@@ -52,7 +52,6 @@ object CommitTool {
 
   /**
    * src -> SHA-1
-   * need refactoring
    */
   def getBlobMapFromTree(repo: File, sha1Commit: String, parent : String = ""): Either[String, Map[String, String]] = {
 
