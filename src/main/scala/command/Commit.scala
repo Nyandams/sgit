@@ -7,7 +7,7 @@ import java.util.regex.Pattern
 import java.io.File.separator
 import annotation.tailrec
 import util.BranchTool.getCurrentBranch
-import util.CommitUtil._
+import util.CommitTool._
 
 object Commit {
 

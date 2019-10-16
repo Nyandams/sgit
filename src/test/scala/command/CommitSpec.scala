@@ -5,7 +5,7 @@ import java.io.File.separator
 import util.FileTool.sha1Hash
 import better.files._
 import objects.Index._
-import util.ObjectUtil.getFileFromSha
+import util.ObjectTool.getFileFromSha
 import org.scalatest.{FlatSpec, FunSpec, Matchers, BeforeAndAfterEach}
 
 

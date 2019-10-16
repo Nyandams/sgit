@@ -1,7 +1,7 @@
 package util
 import better.files._
 
-object ObjectUtil {
+object ObjectTool {
   def getFileFromSha(repo: File, sha: String): Either[String, File] = {
     if (sha.length >= 38) {
       val dirObject = sha.substring(0,2)

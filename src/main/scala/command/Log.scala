@@ -3,9 +3,9 @@ package command
 import better.files._
 
 import Console.{RESET, YELLOW}
-import util.ObjectUtil.getFileFromSha
+import util.ObjectTool.getFileFromSha
 import util.BranchTool.getCurrentBranch
-import util.CommitUtil.getMapFromCommit
+import util.CommitTool.getMapFromCommit
 import java.nio.file._
 import java.util.Date
 

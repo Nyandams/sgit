@@ -27,6 +27,7 @@ object Dispatcher {
             else showTags(repo)
           case "diff" => diff(repo)
           case "log" => log(repo)
+          case "branch" =>
         }
         case None =>
         case _ =>
