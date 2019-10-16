@@ -21,23 +21,23 @@ object Index {
   def getMapFromIndex(repo: File): Either[String, Map[String, String]] = {
     val indexFile = repo/".sgit"/"index"
 
+    @tailrec
+    def loop(lines: List[String], mapIndex: Map[String, String]): Map[String, String] = {
+      if (lines.nonEmpty){
+        val line = lines.head
+        val lineSplit = line.split(" ")
+        val newMap = mapIndex + (lineSplit(1) -> lineSplit(0))
+        loop(lines.tail, newMap)
+      } else {
+        mapIndex
+      }
+    }
+
     if(indexFile.exists) {
-      Right(getMapFromIndexIterator(indexFile.lineIterator))
+      Right(loop(indexFile.lines.toList, Map()))
     } else {
       Left("file index not found")
     }
   }
-
-  def getMapFromIndexIterator(iterator: Iterator[String]): Map[String, String] ={
-    if (iterator.hasNext){
-      val line = iterator.next()
-      val lineSplit = line.split(" ")
-      Map(lineSplit(1) -> lineSplit(0)) ++ getMapFromIndexIterator(iterator)
-    } else {
-       Map()
-    }
-  }
-
-
 
 }
