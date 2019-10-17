@@ -35,11 +35,12 @@ object Checkout {
             shaCommit = possibleBranch.contentAsString
             println(s"Switched to branch '${coElement}'")
           } else if (possibleTag.exists) {
-            headFile.overwrite(
-              "ref: refs" + separator + "tags" + separator + coElement
-            )
             shaCommit = possibleTag.contentAsString
             println(s"Switched to tag '${coElement}'")
+            val detached = (repo / ".sgit" / "refs" / "detached")
+              .createFileIfNotExists(createParents = true)
+            detached.overwrite(shaCommit)
+            headFile.overwrite("ref: refs" + separator + detached.name)
           } else {
             getFileFromShaIncomplete(repo, coElement) match {
               case Left(error) => println(error)
