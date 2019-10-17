@@ -60,15 +60,10 @@ object CommitTool {
       repo: File,
       shaCommit: String
   ): Either[String, Map[String, String]] = {
-    getCurrentBranch(repo) match {
-      case Right(currentBranch) =>
-        val lastCommit = currentBranch.contentAsString
-        getMapFromCommit(repo, lastCommit) match {
-          case Right(mapCommit) =>
-            val treeCommit = mapCommit("tree")
-            getBlobMapFromTree(repo, treeCommit)
-          case Left(error) => Left(error)
-        }
+    getMapFromCommit(repo, shaCommit) match {
+      case Right(mapCommit) =>
+        val treeCommit = mapCommit("tree")
+        getBlobMapFromTree(repo, treeCommit)
       case Left(error) => Left(error)
     }
   }
