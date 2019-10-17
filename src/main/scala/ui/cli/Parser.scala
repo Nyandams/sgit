@@ -21,7 +21,7 @@ object Parser {
           arg[String](name = "<file>...")
             .unbounded()
             .action((x, c) => c.copy(files = c.files :+ x))
-            .text("list of files to add"),
+            .text("list of files to add")
         )
 
       cmd(name = "rm")
@@ -31,7 +31,7 @@ object Parser {
           arg[String](name = "<file>...")
             .unbounded()
             .action((x, c) => c.copy(files = c.files :+ x))
-            .text("list of files to remove"),
+            .text("list of files to remove")
         )
 
       cmd(name = "commit")
@@ -55,10 +55,9 @@ object Parser {
           opt[Unit]('p', "patch")
             .action((x, c) => c.copy(patch = true))
             .text("Show changes overtime"),
-
           opt[Unit]('s', "stat")
             .action((x, c) => c.copy(patch = true))
-            .text("Show stats about changes overtime"),
+            .text("Show stats about changes overtime")
         )
 
       cmd(name = "tag")
@@ -79,11 +78,9 @@ object Parser {
             .action((x, c) => c.copy(file = x))
             .optional()
             .text("name of the branch you are creating"),
-
           opt[Unit]('a', name = "all")
             .action((_, c) => c.copy(showBranch = true, showTag = true))
             .text("List all branches and tags"),
-
           opt[Unit]('v', name = "verbose")
             .action((_, c) => c.copy(verbose = true))
         )
@@ -113,14 +110,18 @@ object Parser {
         .children(
           arg[String](name = "<branch or commit>")
             .action((x, c) => c.copy(file = x))
-            .text("branch/commit that will be the new base of the current branch"),
-
+            .text(
+              "branch/commit that will be the new base of the current branch"
+            ),
           opt[Unit]('i', name = "interactive")
             .action((_, c) => c.copy(interactive = true))
-            .text("42 interfaces in order to rename, squash and do random stuff on commits before rebasing")
+            .text(
+              "42 interfaces in order to rename, squash and do random stuff on commits before rebasing"
+            )
         )
     }
   }
 
-  def getConfig(arguments: Array[String]): Option[Config] = getParser().parse(arguments, Config())
+  def getConfig(arguments: Array[String]): Option[Config] =
+    getParser().parse(arguments, Config())
 }

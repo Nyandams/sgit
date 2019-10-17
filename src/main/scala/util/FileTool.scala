@@ -12,11 +12,11 @@ object FileTool {
   def getUserDirectory: File = File(getUserPath)
 
   /**
-   * Returns the .sgit path if there is one
-   *
-   * @param file current file where we check if .sgit exists
-   * @return
-   */
+    * Returns the .sgit path if there is one
+    *
+    * @param file current file where we check if .sgit exists
+    * @return
+    */
   @tailrec
   def getSgitRec(file: File = getUserDirectory): Either[String, File] = {
     val sgitDir = file / ".sgit"
@@ -30,8 +30,8 @@ object FileTool {
   }
 
   /**
-   * Return true if the path is in a sgit repository
-   */
+    * Return true if the path is in a sgit repository
+    */
   @tailrec
   def isInSgit(file: File = getUserDirectory): Boolean = {
     val sgitDir = file / ".sgit"
@@ -53,9 +53,9 @@ object FileTool {
     hashedString
   }
 
-  def allFileRepoSet(repo: File): Set[String] ={
-    repo.listRecursively
-      .toSet.filter(f => f.isRegularFile)
+  def allFileRepoSet(repo: File): Set[String] = {
+    repo.listRecursively.toSet
+      .filter(f => f.isRegularFile)
       .filter(f => !f.pathAsString.contains(".sgit"))
       .map(f => repo.relativize(f).toString)
   }

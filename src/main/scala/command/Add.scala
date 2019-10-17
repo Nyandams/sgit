@@ -10,11 +10,13 @@ object Add {
 
     val dirs = files.filter(f => f.isDirectory)
     val directFiles = files.filter(f => f.isRegularFile)
-    val filesRec = dirs.flatMap(dir => dir.listRecursively).filter(f => f.isRegularFile)
+    val filesRec =
+      dirs.flatMap(dir => dir.listRecursively).filter(f => f.isRegularFile)
     val filesToAdd = directFiles ++ filesRec
     // in the repo but not sgit
-    val validFilesToAdd = filesToAdd.filter(f => f.pathAsString.contains(repo.pathAsString))
-                                    .filter(f => !f.pathAsString.contains(".sgit/"))
+    val validFilesToAdd = filesToAdd
+      .filter(f => f.pathAsString.contains(repo.pathAsString))
+      .filter(f => !f.pathAsString.contains(".sgit/"))
 
     val indexMapAdded = handleBlobsAdding(repo, validFilesToAdd)
 

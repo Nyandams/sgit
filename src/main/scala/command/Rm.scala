@@ -8,7 +8,8 @@ object Rm {
     val files = filesPath.map(fp => File(fp))
     val dirs = files.filter(f => f.isDirectory)
     val directFiles = files.filter(f => f.isRegularFile)
-    val filesRec = dirs.flatMap(dir => dir.listRecursively).filter(f => f.isRegularFile)
+    val filesRec =
+      dirs.flatMap(dir => dir.listRecursively).filter(f => f.isRegularFile)
     val filesAlreadyDeleted = files.filter(f => f.notExists)
     val filesToDelete = directFiles ++ filesRec ++ filesAlreadyDeleted
 
@@ -16,9 +17,11 @@ object Rm {
 
     getMapFromIndex(repo) match {
       case Right(mapOldIndex) => {
-        val relativizedDeletedFile = filesToDelete.map(file => repo.relativize(file).toString)
+        val relativizedDeletedFile =
+          filesToDelete.map(file => repo.relativize(file).toString)
 
-        val mapWithoutDeleted = mapOldIndex.filterKeys(src => !relativizedDeletedFile.contains(src))
+        val mapWithoutDeleted =
+          mapOldIndex.filterKeys(src => !relativizedDeletedFile.contains(src))
         updateIndex(repo, mapWithoutDeleted)
       }
       case Left(error) => println(error)
