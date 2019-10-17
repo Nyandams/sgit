@@ -104,4 +104,16 @@ object CommitTool {
       case Left(error) => Left(error)
     }
   }
+
+  def isThereACommit(repo: File): Boolean = {
+    getCurrentBranch(repo) match {
+      case Left(error) => false
+      case Right(currentBranch) =>
+        if(currentBranch.contentAsString.nonEmpty){
+          true
+        }else {
+          false
+        }
+    }
+  }
 }

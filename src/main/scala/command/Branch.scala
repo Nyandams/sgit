@@ -6,27 +6,32 @@ import util.CommitTool._
 import annotation.tailrec
 
 object Branch {
-  def newBranch(repo: File, nameBranch: String ): Unit ={
-    getCurrentBranch(repo) match {
-      case Left(error) => println("Failed to resolve 'HEAD' as a valid ref")
-      case Right(currentBranch) =>
-        val splitTagName = nameBranch.split(" ")
-        if (splitTagName.length == 1){
-          val headFolder = (repo/".sgit"/"refs"/"heads")
-          if (headFolder.exists){
-            if (headFolder.list.contains((repo/".sgit"/"refs"/"heads"/nameBranch))) {
-              println(s"branch '${nameBranch}' already exists")
+  def newBranch(repo: File, nameBranch: String ): Unit = {
+    if(isThereACommit(repo)){
+      getCurrentBranch(repo) match {
+        case Left(error) => println("Failed to resolve 'HEAD' as a valid ref")
+        case Right(currentBranch) =>
+          val splitTagName = nameBranch.split(" ")
+          if (splitTagName.length == 1){
+            val headFolder = (repo/".sgit"/"refs"/"heads")
+            if (headFolder.exists){
+              if (headFolder.list.contains((repo/".sgit"/"refs"/"heads"/nameBranch))) {
+                println(s"branch '${nameBranch}' already exists")
+              } else {
+                val branchFile = (repo/".sgit"/"refs"/"heads"/nameBranch).createFileIfNotExists(true)
+                branchFile.appendText(currentBranch.contentAsString)
+              }
             } else {
-              val branchFile = (repo/".sgit"/"refs"/"heads"/nameBranch).createFileIfNotExists(true)
-              branchFile.appendText(currentBranch.contentAsString)
+              println("no heads directory")
             }
           } else {
-            println("no heads directory")
+            println(s"'${nameBranch}' is not a valid tag name")
           }
-        } else {
-          println(s"'${nameBranch}' is not a valid tag name")
-        }
+      }
+    } else {
+      println(s"Not a valid object name: 'master'.")
     }
+
   }
 
   def showBranch(repo: File): Unit = {

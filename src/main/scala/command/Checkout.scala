@@ -2,7 +2,7 @@ package command
 
 import better.files.File
 import objects.Index.{getMapFromIndex, updateIndex}
-import util.CommitTool.{getBlobMapFromTree, getMapBlobCommit}
+import util.CommitTool.{getMapBlobCommit}
 import java.io.File.separator
 import annotation.tailrec
 import util.ObjectTool.getFileFromShaIncomplete
@@ -39,7 +39,6 @@ object Checkout {
             getFileFromShaIncomplete(repo, coElement) match {
               case Left(error) => println(error)
               case Right(fileCommit) =>
-                // TODO: what behaviour when co a commit
                 shaCommit = fileCommit.parent.name+fileCommit.name
                 println(s"Note: switching to '${shaCommit}'.\n\n You are in 'detached HEAD' state. You can look around, make experimental\nchanges and commit them, and you can discard any commits you make in this\nstate without impacting any branches by switching back to a branch.")
                 val detached = (repo/".sgit"/"refs"/"detached").createFileIfNotExists(createParents = true)
