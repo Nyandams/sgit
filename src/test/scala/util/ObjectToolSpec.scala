@@ -59,4 +59,30 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
     }
   }
 
+  it should "return an error if the sha1 is incorrect" in {
+    val file = (tempDirPath/"1").createFileIfNotExists(true)
+    file.overwrite("test")
+    add(tempDirPath, Array(file.pathAsString))
+    getFileFromShaIncomplete(tempDirPath, "sdok") match {
+      case Left(error) => assert(true)
+      case Right(file) => assert(false)
+    }
+  }
+
+  it should "return an error if there is multiple file corresponding" in {
+    (tempDirPath/"objects"/"d0"/"12556658").createFileIfNotExists(true)
+    (tempDirPath/"objects"/"d0"/"1657").createFileIfNotExists(true)
+    val sha = "d01"
+    getFileFromShaIncomplete(tempDirPath, sha) match {
+      case Left(error) => assert(true)
+      case Right(file) => assert(false)
+    }
+  }
+
+  it should "return an error if the shaCut is too short" in {
+    getFileFromShaIncomplete(tempDirPath, "d0") match {
+      case Left(error) => assert(true)
+      case Right(file) => assert(false)
+    }
+  }
 }
