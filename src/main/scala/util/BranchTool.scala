@@ -6,7 +6,8 @@ object BranchTool {
   def getHeadFilePath(repo: File): Either[String, String] = {
     val headFile = (repo / ".sgit" / "HEAD")
     if (headFile.exists){
-      Right(headFile.contentAsString.split(" ")(1))
+      val headSplited = headFile.contentAsString.split(" ")
+        Right(headSplited(1))
     } else {
       Left("HEAD not found")
     }

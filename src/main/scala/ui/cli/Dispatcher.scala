@@ -8,6 +8,7 @@ import command.Tag._
 import command.Diff._
 import command.Log._
 import command.Branch._
+import command.Checkout._
 import ui.cli.Parser.getConfig
 import util.FileTool._
 
@@ -32,6 +33,7 @@ object Dispatcher {
             if (config.file.nonEmpty) newBranch(repo, config.file)
             else if (config.verbose) showBranchVerbose(repo)
             else showBranch(repo)
+          case "checkout" => checkout(repo, config.file)
         }
         case None =>
         case _ =>
