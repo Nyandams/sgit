@@ -1,5 +1,7 @@
 language: scala
 
+scala: 2.12.10
+
 addons:
   sonarcloud:
     organization: "nyandams"
@@ -13,4 +15,7 @@ jobs:
     - stage: test
       script: sbt test
     - stage: sonarcloud
-      script: sonar-scanner
+      script:
+        - sbt coverage test coverageReport
+        - sonar-scanner
+        - sbt scalafmtCheckAll
