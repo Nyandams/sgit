@@ -21,6 +21,20 @@ object CommitTool {
         lines: List[String],
         mapCommit: Map[String, String]
     ): Map[String, String] = {
+      @tailrec
+      def getMessage(lines: List[String], message: String): String = {
+        if (lines.nonEmpty) {
+          val line = lines.head
+          if (message.nonEmpty) {
+            getMessage(lines.tail, s"${message}\n${line}")
+          } else {
+            getMessage(lines.tail, s"${line}")
+          }
+        } else {
+          message
+        }
+      }
+
       if (lines.nonEmpty) {
         val line = lines.head
         val lineSplit = line.split(" ")
@@ -28,8 +42,7 @@ object CommitTool {
           val newMap = mapCommit + (lineSplit(0) -> lineSplit(1))
           loop(lines.tail, newMap)
         } else {
-          val lineMsg = lines.tail.head
-          val newMap = mapCommit + ("msg" -> lineMsg)
+          val newMap = mapCommit + ("msg" -> getMessage(lines.tail, ""))
           newMap
         }
       } else {

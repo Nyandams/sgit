@@ -25,9 +25,10 @@ object Log {
               val date = new Date(
                 Files.getLastModifiedTime(commitFile.path).toMillis
               )
-              val newLog = log + s"${YELLOW}commit ${shaCommit}${RESET}\nDate:   ${date}\n\n    ${mapCommit("msg")}\n\n"
+              val commitMsg = mapCommit("msg").split("\n") mkString "\n    "
+              val newLog = log + s"${YELLOW}commit ${shaCommit}${RESET}\nDate:   ${date}\n\n    ${commitMsg}\n\n"
               if (mapCommit.contains("parent")) {
-                loop(repo, mapCommit("tree"), newLog)
+                loop(repo, mapCommit("parent"), newLog)
               } else {
                 newLog
               }

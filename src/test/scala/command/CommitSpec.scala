@@ -1,12 +1,10 @@
 package command
 import java.io
 import java.nio.file.Files
-import java.io.File.separator
 import util.FileTool.sha1Hash
 import better.files._
-import objects.Index._
 import util.ObjectTool.getFileFromSha
-import org.scalatest.{FlatSpec, FunSpec, Matchers, BeforeAndAfterEach}
+import org.scalatest.{FlatSpec, BeforeAndAfterEach}
 
 
 class CommitSpec extends FlatSpec with BeforeAndAfterEach {
