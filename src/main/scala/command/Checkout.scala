@@ -24,7 +24,7 @@ object Checkout {
           println("You have local changes; cannot switch branches.")
         } else {
           val possibleBranch = (repo / ".sgit" / "refs" / "heads" / coElement)
-          val possibleTag = (repo / ".sgit" / "refs" / "heads" / coElement)
+          val possibleTag = (repo / ".sgit" / "refs" / "tags" / coElement)
           val headFile = (repo / ".sgit" / "HEAD")
 
           var shaCommit = ""
