@@ -20,13 +20,14 @@ object Dispatcher {
         getConfig(arguments) match {
           case Some(config) =>
             config.mode match {
-              case "init"   => init()
-              case "add"    => add(repo, config.files)
-              case "rm"     => rm(repo, config.files)
-              case "commit" => commit(repo, config.commitMessage)
+              case "init"   => println(init())
+              case "add"    => print(add(repo, config.files))
+              case "rm"     => print(rm(repo, config.files))
+              case "commit" => println(commit(repo, config.commitMessage))
               case "status" => print(status(repo))
               case "tag" =>
-                if (config.tagName.nonEmpty) println(newTag(repo, config.tagName))
+                if (config.tagName.nonEmpty)
+                  println(newTag(repo, config.tagName))
                 else println(showTags(repo))
               case "diff" => diff(repo)
               case "log"  => print(log(repo))
@@ -44,7 +45,7 @@ object Dispatcher {
         getConfig(arguments) match {
           case Some(config) =>
             config.mode match {
-              case "init" => init()
+              case "init" => println(init())
               case _      => println(error)
             }
           case None =>

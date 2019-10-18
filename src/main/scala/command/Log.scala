@@ -41,9 +41,9 @@ object Log {
       case Right(branch) =>
         val lastCommit = branch.contentAsString
         if (lastCommit.nonEmpty) {
-          loop(repo, lastCommit, "") + "\n"
+          loop(repo, lastCommit, "")
         } else {
-            s"your current branch '${branch.name}' does not have any commits yet\n"
+          s"your current branch '${branch.name}' does not have any commits yet\n"
         }
     }
   }

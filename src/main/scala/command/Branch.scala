@@ -75,17 +75,15 @@ object Branch {
 
           val longestBranchName = branchNames.reduceLeft(maxLengthString).length
 
-
           (branchNames.map(
-              name =>
-                verbosebranch(
-                  repo,
-                  (headsFolder / name),
-                  currentBranch,
-                  longestBranchName
-                )
-            ) mkString "\n"
-          )
+            name =>
+              verbosebranch(
+                repo,
+                (headsFolder / name),
+                currentBranch,
+                longestBranchName
+              )
+          ) mkString "\n")
 
         } else {
           ""

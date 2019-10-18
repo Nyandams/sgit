@@ -5,7 +5,7 @@ import objects.Blob.handleBlobsAdding
 import objects.Index._
 
 object Add {
-  def add(repo: File, filesPath: Array[String]): Unit = {
+  def add(repo: File, filesPath: Array[String]): String = {
     val files = filesPath.map(fp => File(fp))
 
     val dirs = files.filter(f => f.isDirectory)
@@ -25,8 +25,9 @@ object Add {
         val mapDiff = (mapOldIndex.toSet diff indexMapAdded.toSet).toMap
         val indexMapFinal = mapDiff ++ indexMapAdded
         updateIndex(repo, indexMapFinal)
+        ""
       }
-      case Left(error) => println(error)
+      case Left(error) => error
     }
   }
 }

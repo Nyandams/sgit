@@ -5,9 +5,9 @@ import util.FileTool._
 import java.io.File.separator
 
 object Init {
-  def init(path: File = getUserDirectory): Unit = {
+  def init(path: File = getUserDirectory): String = {
     if (isInSgit()) {
-      println("You are already in a sgit repository")
+      "You are already in a sgit repository"
     } else {
       (path / ".sgit").createDirectory()
       (path / ".sgit" / "objects").createDirectory()
@@ -17,6 +17,7 @@ object Init {
       (path / ".sgit" / "HEAD")
         .createFile()
         .overwrite("ref: refs" + separator + "heads" + separator + "master")
+      ""
     }
   }
 

@@ -39,7 +39,7 @@ object Tag {
   def showTags(repo: File): String = {
     val tagFolder = (repo / ".sgit" / "refs" / "tags")
     if (tagFolder.exists) {
-     (tagFolder.children.map(f => f.name) mkString "\n")
+      (tagFolder.children.map(f => f.name) mkString "\n")
     } else {
       ""
     }

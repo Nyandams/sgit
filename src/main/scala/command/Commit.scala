@@ -11,7 +11,7 @@ import util.CommitTool._
 
 object Commit {
 
-  def commit(repo: File, message: String): Unit = {
+  def commit(repo: File, message: String): String = {
     getMapFromIndex(repo) match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
@@ -42,15 +42,15 @@ object Commit {
                     .createFileIfNotExists(createParents = true)
                     .overwrite(contentCommit)
                   currentBranch.overwrite(shaCommit)
-                  println(s"[${currentBranch.name} (root-commit) ${shaCommit
-                    .slice(0, 8)}] ${message}")
+                  s"[${currentBranch.name} (root-commit) ${shaCommit
+                    .slice(0, 8)}] ${message}"
                 } else {
                   getMapFromCommit(repo, lastCommit) match {
                     case Right(mapCommit) =>
                       if (treeCommit == mapCommit("tree")) {
-                        println(
-                          s"On branch ${currentBranch.name}\nNothing to commit, working tree clean"
-                        )
+
+                        s"On branch ${currentBranch.name}\nNothing to commit, working tree clean"
+
                       } else {
                         val contentCommit =
                           s"tree ${treeCommit}\nparent ${lastCommit}\n\n${message}"
@@ -59,24 +59,25 @@ object Commit {
                           .createFileIfNotExists(createParents = true)
                           .overwrite(contentCommit)
                         currentBranch.overwrite(shaCommit)
-                        println(
-                          s"[${currentBranch.name} ${shaCommit.slice(0, 8)}] ${message}"
-                        )
+
+                        s"[${currentBranch.name} ${shaCommit.slice(0, 8)}] ${message}"
+
                       }
-                    case Left(error) => println(error)
+                    case Left(error) => error
                   }
 
                 }
 
+              } else {
+                ""
               }
             } else {
-              println(
-                s"On branch ${currentBranch.name}\n\nInitial commit\n\nNothing to commit"
-              )
+              s"On branch ${currentBranch.name}\n\nInitial commit\n\nNothing to commit"
+
             }
-          case Left(error) => println(error)
+          case Left(error) => error
         }
-      case Left(error) => println(error)
+      case Left(error) => error
     }
   }
 

@@ -4,7 +4,7 @@ import better.files.File
 import objects.Index.{getMapFromIndex, updateIndex}
 
 object Rm {
-  def rm(repo: File, filesPath: Array[String]): Unit = {
+  def rm(repo: File, filesPath: Array[String]): String = {
     val files = filesPath.map(fp => File(fp))
     val dirs = files.filter(f => f.isDirectory)
     val directFiles = files.filter(f => f.isRegularFile)
@@ -23,8 +23,9 @@ object Rm {
         val mapWithoutDeleted =
           mapOldIndex.filterKeys(src => !relativizedDeletedFile.contains(src))
         updateIndex(repo, mapWithoutDeleted)
+        ""
       }
-      case Left(error) => println(error)
+      case Left(error) => error
     }
   }
 }
