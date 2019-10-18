@@ -82,4 +82,41 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val diff = Checkout.isThereLocalChanges(tempDirPath).getOrElse(false)
     assert(!diff)
   }
+
+  "the checkout command" should "modify the HEAD file to ref the branch" in {
+    val f1 = (tempDirPath/"1").createFile()
+    Add.add(tempDirPath, Array(f1.pathAsString))
+    val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
+    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Commit.commit(tempDirPath, "1st Commit")
+    Branch.newBranch(tempDirPath, "test")
+    Checkout.checkout(tempDirPath, "test")
+    val headFile = (tempDirPath/".sgit"/"HEAD")
+    assert(headFile.contentAsString == "ref: refs/heads/test")
+  }
+
+  it should "pass in detached mode when it co to a tag" in {
+    val f1 = (tempDirPath/"1").createFile()
+    Add.add(tempDirPath, Array(f1.pathAsString))
+    val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
+    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Commit.commit(tempDirPath, "1st Commit")
+    Tag.newTag(tempDirPath, "test")
+    Checkout.checkout(tempDirPath, "test")
+    val headFile = (tempDirPath/".sgit"/"HEAD")
+    assert(headFile.contentAsString == "ref: refs/detached")
+  }
+
+  it should "pass in detached mode when it co to a commit" in {
+    val f1 = (tempDirPath/"1").createFile()
+    Add.add(tempDirPath, Array(f1.pathAsString))
+    val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
+    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Commit.commit(tempDirPath, "1st Commit")
+    val currBranch = getCurrentBranch(tempDirPath).getOrElse(File("zjjkapej"))
+    val sha = currBranch.contentAsString
+    Checkout.checkout(tempDirPath, sha)
+    val headFile = (tempDirPath/".sgit"/"HEAD")
+    assert(headFile.contentAsString == "ref: refs/detached")
+  }
 }
