@@ -26,14 +26,14 @@ object Dispatcher {
               case "commit" => commit(repo, config.commitMessage)
               case "status" => print(status(repo))
               case "tag" =>
-                if (config.tagName.nonEmpty) print(newTag(repo, config.tagName))
-                else print(showTags(repo))
+                if (config.tagName.nonEmpty) println(newTag(repo, config.tagName))
+                else println(showTags(repo))
               case "diff" => diff(repo)
               case "log"  => print(log(repo))
               case "branch" =>
-                if (config.file.nonEmpty) newBranch(repo, config.file)
-                else if (config.verbose) showBranchVerbose(repo)
-                else showBranch(repo)
+                if (config.file.nonEmpty) println(newBranch(repo, config.file))
+                else if (config.verbose) println(showBranchVerbose(repo))
+                else println(showBranch(repo))
               case "checkout" => checkout(repo, config.file)
             }
           case None =>

@@ -46,4 +46,24 @@ class TagSpec extends FlatSpec with BeforeAndAfterEach {
     assert(tagFile2Content == tagFile1Content)
   }
 
+  "the showTag command" should "return a number of line corresponding to the number of tag" in {
+    val f1 = (tempDirPath/"1").createFile()
+    Add.add(tempDirPath, Array(f1.pathAsString))
+    Commit.commit(tempDirPath, "1st Commit")
+    Tag.newTag(tempDirPath, "testTag")
+    Tag.newTag(tempDirPath, "tag2")
+    val printLength = Tag.showTags(tempDirPath).split("\n").length
+    assert(printLength == 2)
+  }
+
+  "the showTag command" should "return all the tag created" in {
+    val f1 = (tempDirPath/"1").createFile()
+    Add.add(tempDirPath, Array(f1.pathAsString))
+    Commit.commit(tempDirPath, "1st Commit")
+    Tag.newTag(tempDirPath, "testTag")
+    Tag.newTag(tempDirPath, "tag2")
+    val printArray = Tag.showTags(tempDirPath).split("\n")
+    assert(printArray.contains("tag2") && printArray.contains("testTag"))
+  }
+
 }

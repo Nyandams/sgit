@@ -6,10 +6,10 @@ import util.CommitTool._
 import annotation.tailrec
 
 object Branch {
-  def newBranch(repo: File, nameBranch: String): Unit = {
+  def newBranch(repo: File, nameBranch: String): String = {
     if (isThereACommit(repo)) {
       getCurrentBranch(repo) match {
-        case Left(error) => println("Failed to resolve 'HEAD' as a valid ref")
+        case Left(error) => "Failed to resolve 'HEAD' as a valid ref"
         case Right(currentBranch) =>
           val splitTagName = nameBranch.split(" ")
           if (splitTagName.length == 1) {
@@ -18,51 +18,52 @@ object Branch {
               if (headFolder.list.contains(
                     (repo / ".sgit" / "refs" / "heads" / nameBranch)
                   )) {
-                println(s"branch '${nameBranch}' already exists")
+                s"branch '${nameBranch}' already exists"
               } else {
                 val branchFile =
                   (repo / ".sgit" / "refs" / "heads" / nameBranch)
                     .createFileIfNotExists(true)
                 branchFile.appendText(currentBranch.contentAsString)
+                ""
               }
             } else {
-              println("no heads directory")
+              "no heads directory"
             }
           } else {
-            println(s"'${nameBranch}' is not a valid tag name")
+            s"'${nameBranch}' is not a valid tag name"
           }
       }
     } else {
-      println(s"Not a valid object name: 'master'.")
+      s"Not a valid object name: 'master'."
     }
 
   }
 
-  def showBranch(repo: File): Unit = {
+  def showBranch(repo: File): String = {
     getCurrentBranch(repo) match {
-      case Left(error) => println(error)
+      case Left(error) => error
       case Right(fileHead) =>
         val currentBranch = fileHead.name
         val headsFolder = (repo / ".sgit" / "refs" / "heads")
         if (headsFolder.exists) {
-          println(
-            headsFolder.list
-              .map(f => f.name)
-              .toList
-              .sorted
-              .map(
-                name =>
-                  if (name == currentBranch) s"* ${GREEN}${name}${RESET}"
-                  else s"  ${name}"
-              ) mkString "\n"
-          )
+          (headsFolder.list
+            .map(f => f.name)
+            .toList
+            .sorted
+            .map(
+              name =>
+                if (name == currentBranch) s"* ${GREEN}${name}${RESET}"
+                else s"  ${name}"
+            ) mkString "\n")
+        } else {
+          ""
         }
     }
   }
 
-  def showBranchVerbose(repo: File): Unit = {
+  def showBranchVerbose(repo: File): String = {
     getCurrentBranch(repo) match {
-      case Left(error) => println(error)
+      case Left(error) => error
       case Right(fileHead) =>
         val currentBranch = fileHead.name
         val headsFolder = (repo / ".sgit" / "refs" / "heads")
@@ -74,8 +75,8 @@ object Branch {
 
           val longestBranchName = branchNames.reduceLeft(maxLengthString).length
 
-          println(
-            branchNames.map(
+
+          (branchNames.map(
               name =>
                 verbosebranch(
                   repo,
@@ -85,6 +86,9 @@ object Branch {
                 )
             ) mkString "\n"
           )
+
+        } else {
+          ""
         }
     }
   }
