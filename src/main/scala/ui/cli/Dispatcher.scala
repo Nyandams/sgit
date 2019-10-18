@@ -34,7 +34,7 @@ object Dispatcher {
                 if (config.file.nonEmpty) println(newBranch(repo, config.file))
                 else if (config.verbose) println(showBranchVerbose(repo))
                 else println(showBranch(repo))
-              case "checkout" => checkout(repo, config.file)
+              case "checkout" => println(checkout(repo, config.file))
             }
           case None =>
           case _    =>
