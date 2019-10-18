@@ -2,7 +2,7 @@ package command
 
 import util.FileTool._
 import better.files._
-import objects.Index._
+import objects.Index
 import java.util.regex.Pattern
 import java.io.File.separator
 import annotation.tailrec
@@ -12,7 +12,8 @@ import util.CommitTool._
 object Commit {
 
   def commit(repo: File, message: String): String = {
-    getMapFromIndex(repo) match {
+    val index = Index(repo)
+    index.getMapFromIndex match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
         getCurrentBranch(repo) match {

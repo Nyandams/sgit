@@ -3,7 +3,7 @@ import java.io
 import java.nio.file.Files
 
 import better.files._
-import objects.Index.getMapFromIndex
+import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
 import util.BranchTool.getCurrentBranch
 import util.CommitTool.getMapBlobCommit
@@ -25,7 +25,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     Commit.commit(tempDirPath, "commit")
     val f2 = (tempDirPath/"2").createFile()
     Add.add(tempDirPath, Array(f2.pathAsString))
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val currentBranch =  getCurrentBranch(tempDirPath).getOrElse(File("3"))
         val sha1Commit = currentBranch.contentAsString
@@ -40,7 +41,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f1 = (tempDirPath/"1").createFile()
     Add.add(tempDirPath, Array(f1.pathAsString))
     Commit.commit(tempDirPath, "commit")
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val currentBranch =  getCurrentBranch(tempDirPath).getOrElse(File("3"))
         val sha1Commit = currentBranch.contentAsString
@@ -56,7 +58,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
     Add.add(tempDirPath, Array(f2.pathAsString))
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
 
         val changes = Status.getNotStagedChanges(tempDirPath,mapIndex, tempDirPath)
@@ -71,7 +74,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"2").createFile()
     Add.add(tempDirPath, Array(f2.pathAsString))
     f1.overwrite("modif")
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
 
         val changes = Status.getNotStagedChanges(tempDirPath,mapIndex, tempDirPath)
@@ -86,7 +90,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"2").createFile()
     Add.add(tempDirPath, Array(f2.pathAsString))
     f1.delete()
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
 
         val changes = Status.getNotStagedChanges(tempDirPath,mapIndex, tempDirPath)
@@ -101,7 +106,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"2").createFile()
     Add.add(tempDirPath, Array(f2.pathAsString))
     (tempDirPath/"3").createFile()
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val changes = Status.getUntrackedFiles(tempDirPath,mapIndex.keySet, tempDirPath)
         assert(changes.nonEmpty)
@@ -114,7 +120,8 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
     Add.add(tempDirPath, Array(f2.pathAsString))
-    getMapFromIndex(tempDirPath) match {
+    val index = Index(tempDirPath)
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val changes = Status.getUntrackedFiles(tempDirPath,mapIndex.keySet, tempDirPath)
         assert(changes.isEmpty)

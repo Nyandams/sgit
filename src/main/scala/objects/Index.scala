@@ -3,14 +3,17 @@ import better.files._
 import util.FileTool._
 import annotation.tailrec
 
-object Index {
+case class Index(repo: File) {
+
+  def getIndexFile: File = repo / ".sgit" / "index"
+
+  def indexExist: Boolean = getIndexFile.exists
 
   /**
     * Replace the Index with a new Index that contains the information of indexMap
-    * @param repo directory of the sgit repo
     * @param indexMap Map(src -> SHA-1) of the new index
     */
-  def updateIndex(repo: File, indexMap: Map[String, String]) = {
+  def updateIndex(indexMap: Map[String, String]) = {
     val indexFile = repo / ".sgit" / "index"
     if (indexFile.exists) {
       indexFile.delete()
@@ -25,12 +28,9 @@ object Index {
 
   /**
     * Return a map corresponding to the index
-    * @param repo directory of the sgit repo
     * @return Map(src -> SHA-1)
     */
-  def getMapFromIndex(repo: File): Either[String, Map[String, String]] = {
-    val indexFile = repo / ".sgit" / "index"
-
+  def getMapFromIndex(): Either[String, Map[String, String]] = {
     @tailrec
     def loop(
         lines: List[String],
@@ -46,8 +46,8 @@ object Index {
       }
     }
 
-    if (indexFile.exists) {
-      Right(loop(indexFile.lines.toList, Map()))
+    if (indexExist) {
+      Right(loop(getIndexFile.lines.toList, Map()))
     } else {
       Left("file index not found")
     }

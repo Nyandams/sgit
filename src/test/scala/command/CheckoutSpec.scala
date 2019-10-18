@@ -3,7 +3,7 @@ import java.io
 import java.nio.file.Files
 
 import better.files._
-import objects.Index.getMapFromIndex
+import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
 import util.BranchTool.getCurrentBranch
 
@@ -45,7 +45,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     f2.overwrite("test2")
-    val mapIndex = getMapFromIndex(tempDirPath).getOrElse(Map())
+    val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
     val diff = Checkout.isThereDiffIndexRepo(tempDirPath, mapIndex)
     assert(diff)
   }
@@ -56,7 +56,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    val mapIndex = getMapFromIndex(tempDirPath).getOrElse(Map())
+    val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
     val diff = Checkout.isThereDiffIndexRepo(tempDirPath, mapIndex)
     assert(!diff)
   }

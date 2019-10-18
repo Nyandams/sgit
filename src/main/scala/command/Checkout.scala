@@ -1,9 +1,11 @@
 package command
 
 import better.files.File
-import objects.Index.{getMapFromIndex, updateIndex}
 import util.CommitTool.getMapBlobCommit
 import java.io.File.separator
+
+import objects.Index
+
 import annotation.tailrec
 import util.ObjectTool.getFileFromShaIncomplete
 import util.BranchTool.getCurrentBranch
@@ -59,7 +61,8 @@ object Checkout {
           getMapBlobCommit(repo, shaCommit) match {
             case Left(error) => error
             case Right(mapCommit) =>
-              updateIndex(repo, mapCommit)
+              val index = Index(repo)
+              index.updateIndex(mapCommit)
               createWorkingDirectoryFiles(repo, mapCommit)
               toPrint
           }
@@ -68,7 +71,8 @@ object Checkout {
   }
 
   def isThereLocalChanges(repo: File): Either[String, Boolean] = {
-    getMapFromIndex(repo) match {
+    val index = Index(repo)
+    index.getMapFromIndex() match {
       case Left(error) => Left(error)
       case Right(mapIndex) =>
         getCurrentBranch(repo) match {
@@ -134,8 +138,8 @@ object Checkout {
         deleteFiles(listFiles.tail)
       }
     }
-
-    getMapFromIndex(repo) match {
+    val index = Index(repo)
+    index.getMapFromIndex match {
       case Left(error) => ???
       case Right(mapIndex) =>
         val filesToDelete = mapIndex.keySet.map(src => (repo / src))

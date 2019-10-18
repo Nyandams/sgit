@@ -1,7 +1,7 @@
 package command
 
 import better.files.File
-import objects.Index.{getMapFromIndex, updateIndex}
+import objects.Index
 
 object Rm {
   def rm(repo: File, filesPath: Array[String]): String = {
@@ -14,15 +14,15 @@ object Rm {
     val filesToDelete = directFiles ++ filesRec ++ filesAlreadyDeleted
 
     filesToDelete.filter(f => f.exists).map(f => f.delete())
-
-    getMapFromIndex(repo) match {
+    val index = Index(repo)
+    index.getMapFromIndex() match {
       case Right(mapOldIndex) => {
         val relativizedDeletedFile =
           filesToDelete.map(file => repo.relativize(file).toString)
 
         val mapWithoutDeleted =
           mapOldIndex.filterKeys(src => !relativizedDeletedFile.contains(src))
-        updateIndex(repo, mapWithoutDeleted)
+        index.updateIndex(mapWithoutDeleted)
         ""
       }
       case Left(error) => error

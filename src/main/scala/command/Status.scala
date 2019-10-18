@@ -2,7 +2,7 @@ package command
 
 import Console.{GREEN, RED, RESET, YELLOW_B, UNDERLINED}
 import better.files._
-import objects.Index.getMapFromIndex
+import objects.Index
 import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
 import util.BranchTool.getCurrentBranch
 import util.CommitTool.getMapBlobCommit
@@ -16,7 +16,8 @@ object Status {
     */
   def status(repo: File, userDir: File = getUserDirectory): String = {
     var toPrint = ""
-    getMapFromIndex(repo) match {
+    val index = Index(repo)
+    index.getMapFromIndex match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
         val notStagedChanges = getNotStagedChanges(repo, mapIndex, userDir)

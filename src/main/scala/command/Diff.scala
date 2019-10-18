@@ -1,13 +1,15 @@
 package command
 import better.files._
 import annotation.tailrec
-import objects.Index.getMapFromIndex
+import objects.Index
 import util.ObjectTool.getFileFromShaIncomplete
-import Console.{GREEN, RESET, RED}
+
+import Console.{GREEN, RED, RESET}
 
 object Diff {
   def diff(repo: File): String = {
-    getMapFromIndex(repo) match {
+    val index = Index(repo)
+    index.getMapFromIndex match {
       case Left(error) => error
       case Right(mapIndex) =>
         val tripletNewOldName = mapIndex.toList.map(
