@@ -1,24 +1,19 @@
 package objects
 
 import better.files._
-import util.FileTool._
-import annotation.tailrec
-import java.io.File.separator
 
-object Blob {
+case class Blob(repo: File) {
 
   /**
     * Create Blobs and add them to the index
     * @param files
     */
   def handleBlobsAdding(
-      repo: File,
       files: Array[File],
       index: Int = 0
   ): Map[String, String] = {
     if (index < files.length) {
-      handleBlobCreation(repo, files(index)) ++ handleBlobsAdding(
-        repo,
+      handleBlobCreation(files(index)) ++ handleBlobsAdding(
         files,
         index + 1
       )
@@ -32,7 +27,7 @@ object Blob {
     * @param file file that will be used to create a blob
     * @return a Map(src -> SHA-1) containing only the filepath and its blob
     */
-  def handleBlobCreation(repo: File, file: File): Map[String, String] = {
+  def handleBlobCreation(file: File): Map[String, String] = {
     val textFile = file.contentAsString
     val sha = file.sha1.toLowerCase()
 

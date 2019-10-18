@@ -2,7 +2,7 @@ package command
 import better.files._
 import annotation.tailrec
 import objects.Index
-import util.ObjectTool.getFileFromShaIncomplete
+import util.ObjectTool
 
 import Console.{GREEN, RED, RESET}
 
@@ -16,7 +16,9 @@ object Diff {
           tuple =>
             (
               (repo / tuple._1),
-              getFileFromShaIncomplete(repo, tuple._2).getOrElse(File("error")),
+              ObjectTool(repo)
+                .getFileFromShaIncomplete(tuple._2)
+                .getOrElse(File("error")),
               tuple._1
             )
         )

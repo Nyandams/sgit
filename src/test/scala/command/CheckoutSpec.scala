@@ -1,12 +1,10 @@
 package command
 import java.io
 import java.nio.file.Files
-
 import better.files._
 import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
-import util.BranchTool.getCurrentBranch
-
+import util.BranchTool
 
 class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
   var tempDir: io.File = Files.createTempDirectory("testRepo").toFile
@@ -24,7 +22,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    Checkout.deleteWorkingDirectoryFiles(tempDirPath)
+    Checkout(tempDirPath).deleteWorkingDirectoryFiles()
     assert(!f1.exists && !f2.exists)
   }
 
@@ -34,7 +32,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     (tempDirPath/".sgit"/"objects"/"d0"/"12345679").createFileIfNotExists(true).overwrite("test")
 
     val map = Map("1" -> "d012345679") + ("dir/2" -> "d012345679")
-    Checkout.createWorkingDirectoryFiles(tempDirPath, map)
+    Checkout(tempDirPath).createWorkingDirectoryFiles(map)
     assert(f1.exists && f2.exists && f1.contentAsString == "test" && f2.contentAsString == "test")
   }
 
@@ -46,7 +44,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Commit.commit(tempDirPath, "1st Commit")
     f2.overwrite("test2")
     val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
-    val diff = Checkout.isThereDiffIndexRepo(tempDirPath, mapIndex)
+    val diff = Checkout(tempDirPath).isThereDiffIndexRepo(mapIndex)
     assert(diff)
   }
 
@@ -57,7 +55,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
-    val diff = Checkout.isThereDiffIndexRepo(tempDirPath, mapIndex)
+    val diff = Checkout(tempDirPath).isThereDiffIndexRepo(mapIndex)
     assert(!diff)
   }
 
@@ -69,7 +67,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Commit.commit(tempDirPath, "1st Commit")
     f2.overwrite("test2")
     Add.add(tempDirPath, Array(f2.pathAsString))
-    val diff = Checkout.isThereLocalChanges(tempDirPath).getOrElse(false)
+    val diff = Checkout(tempDirPath).isThereLocalChanges.getOrElse(false)
     assert(diff)
   }
 
@@ -79,7 +77,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    val diff = Checkout.isThereLocalChanges(tempDirPath).getOrElse(false)
+    val diff = Checkout(tempDirPath).isThereLocalChanges.getOrElse(false)
     assert(!diff)
   }
 
@@ -90,7 +88,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     Branch.newBranch(tempDirPath, "test")
-    Checkout.checkout(tempDirPath, "test")
+    Checkout(tempDirPath).checkout("test")
     val headFile = (tempDirPath/".sgit"/"HEAD")
     assert(headFile.contentAsString == "ref: refs/heads/test")
   }
@@ -102,7 +100,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     Tag.newTag(tempDirPath, "test")
-    Checkout.checkout(tempDirPath, "test")
+    Checkout(tempDirPath).checkout("test")
     val headFile = (tempDirPath/".sgit"/"HEAD")
     assert(headFile.contentAsString == "ref: refs/detached")
   }
@@ -113,9 +111,9 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    val currBranch = getCurrentBranch(tempDirPath).getOrElse(File("zjjkapej"))
+    val currBranch =  BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("zjjkapej"))
     val sha = currBranch.contentAsString
-    Checkout.checkout(tempDirPath, sha)
+    Checkout(tempDirPath).checkout(sha)
     val headFile = (tempDirPath/".sgit"/"HEAD")
     assert(headFile.contentAsString == "ref: refs/detached")
   }

@@ -17,7 +17,7 @@ class BranchToolSpec extends FlatSpec with BeforeAndAfterEach {
   }
 
   "BranchTool.getHeadFilePath" should "run" in {
-    BranchTool.getHeadFilePath(tempDirPath) match {
+    BranchTool(tempDirPath).getCurrentHeadFile match {
       case Left(error) =>
       case Right(head) =>
     }
@@ -25,21 +25,21 @@ class BranchToolSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "return an error if there is no HEAD file" in {
     (tempDirPath/".sgit"/"HEAD").delete()
-    BranchTool.getHeadFilePath(tempDirPath) match {
+    BranchTool(tempDirPath).getCurrentHeadFile match {
       case Left(error) => assert(true)
       case Right(head) => assert(false)
     }
   }
 
   it should "return the path of the ref of the HEAD" in {
-    BranchTool.getHeadFilePath(tempDirPath) match {
+    BranchTool(tempDirPath).getRelativeCurrentHeadFilePath match {
       case Left(error) => assert(false)
       case Right(headRef) => assert(headRef.nonEmpty)
     }
   }
 
-  "BranchTool.getCurrentBranch" should "run" in {
-    BranchTool.getCurrentBranch(tempDirPath) match {
+  "BranchTool.getCurrentHeadFile" should "run" in {
+    BranchTool(tempDirPath).getCurrentHeadFile match {
       case Left(error) =>
       case Right(head) =>
     }
@@ -47,14 +47,14 @@ class BranchToolSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "return an error if there is no HEAD file" in {
     (tempDirPath/".sgit"/"HEAD").delete()
-    BranchTool.getCurrentBranch(tempDirPath) match {
+    BranchTool(tempDirPath).getCurrentHeadFile match {
       case Left(error) => assert(true)
       case Right(head) => assert(false)
     }
   }
 
   it should "return a file corresponding to the current branch" in {
-    BranchTool.getCurrentBranch(tempDirPath) match {
+    BranchTool(tempDirPath).getCurrentHeadFile match {
       case Left(error) => assert(false)
       case Right(branch) => assert(branch.exists)
     }

@@ -1,14 +1,16 @@
 package command
 import Console.{GREEN, RESET}
 import better.files.File
-import util.BranchTool._
+import util.BranchTool
+import util.BranchTool
 import util.CommitTool._
+
 import annotation.tailrec
 
 object Branch {
   def newBranch(repo: File, nameBranch: String): String = {
     if (isThereACommit(repo)) {
-      getCurrentBranch(repo) match {
+      BranchTool(repo).getCurrentHeadFile match {
         case Left(error) => "Failed to resolve 'HEAD' as a valid ref"
         case Right(currentBranch) =>
           val splitTagName = nameBranch.split(" ")
@@ -40,7 +42,7 @@ object Branch {
   }
 
   def showBranch(repo: File): String = {
-    getCurrentBranch(repo) match {
+    BranchTool(repo).getCurrentHeadFile match {
       case Left(error) => error
       case Right(fileHead) =>
         val currentBranch = fileHead.name
@@ -62,7 +64,7 @@ object Branch {
   }
 
   def showBranchVerbose(repo: File): String = {
-    getCurrentBranch(repo) match {
+    BranchTool(repo).getCurrentHeadFile match {
       case Left(error) => error
       case Right(fileHead) =>
         val currentBranch = fileHead.name

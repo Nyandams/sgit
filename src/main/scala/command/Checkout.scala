@@ -5,91 +5,98 @@ import util.CommitTool.getMapBlobCommit
 import java.io.File.separator
 
 import objects.Index
+import util.BranchTool
 
 import annotation.tailrec
-import util.ObjectTool.getFileFromShaIncomplete
-import util.BranchTool.getCurrentBranch
+import util.ObjectTool
 import util.FileTool.{allFileRepoSet, sha1Hash}
 
-object Checkout {
+case class Checkout(repo: File) {
 
   /**
-    *
-    * @param repo
     * @param coElement a branch name, a tag or a commit
     */
-  def checkout(repo: File, coElement: String): String = {
-    isThereLocalChanges(repo) match {
+  def checkout(coElement: String): String = {
+    isThereLocalChanges match {
       case Left(error) => error
       case Right(isThereDiff) =>
         if (isThereDiff) {
           "You have local changes; cannot switch branches."
         } else {
-          val possibleBranch = (repo / ".sgit" / "refs" / "heads" / coElement)
-          val possibleTag = (repo / ".sgit" / "refs" / "tags" / coElement)
-          val headFile = (repo / ".sgit" / "HEAD")
-          var toPrint = ""
-          var shaCommit = ""
-          if (possibleBranch.exists) {
-
-            headFile.overwrite(
-              "ref: refs" + separator + "heads" + separator + coElement
-            )
-            shaCommit = possibleBranch.contentAsString
-            toPrint += s"Switched to branch '${coElement}'"
-          } else if (possibleTag.exists) {
-            shaCommit = possibleTag.contentAsString
-            toPrint += s"Switched to tag '${coElement}'"
-            val detached = (repo / ".sgit" / "refs" / "detached")
-              .createFileIfNotExists(createParents = true)
-            detached.overwrite(shaCommit)
-            headFile.overwrite("ref: refs" + separator + detached.name)
-          } else {
-            getFileFromShaIncomplete(repo, coElement) match {
-              case Left(error) => error
-              case Right(fileCommit) =>
-                shaCommit = fileCommit.parent.name + fileCommit.name
-                toPrint +=
-                  s"Note: switching to '${shaCommit}'.\n\n You are in 'detached HEAD' state. You can look around, make experimental\nchanges and commit them, and you can discard any commits you make in this\nstate without impacting any branches by switching back to a branch."
-                val detached = (repo / ".sgit" / "refs" / "detached")
-                  .createFileIfNotExists(createParents = true)
-                detached.overwrite(shaCommit)
-                headFile.overwrite("ref: refs" + separator + detached.name)
-            }
-          }
-          deleteWorkingDirectoryFiles(repo)
-          getMapBlobCommit(repo, shaCommit) match {
+          updateHeadCheckout(coElement) match {
             case Left(error) => error
-            case Right(mapCommit) =>
-              val index = Index(repo)
-              index.updateIndex(mapCommit)
-              createWorkingDirectoryFiles(repo, mapCommit)
-              toPrint
+            case Right((shaCommit, toPrint)) =>
+              deleteWorkingDirectoryFiles()
+              getMapBlobCommit(repo, shaCommit) match {
+                case Left(error) => error
+                case Right(mapCommit) =>
+                  val index = Index(repo)
+                  index.updateIndex(mapCommit)
+                  createWorkingDirectoryFiles(mapCommit)
+                  toPrint
+              }
           }
         }
     }
   }
 
-  def isThereLocalChanges(repo: File): Either[String, Boolean] = {
+  /**
+    * Update the HEAD and return the sha of the commit corresponding
+    * @param checkoutParam
+    * @return sha of the new current commit
+    */
+  private def updateHeadCheckout(
+      checkoutParam: String
+  ): Either[String, (String, String)] = {
+    val branchTool = BranchTool(repo)
+    val possibleBranch = branchTool.getBranchFile(checkoutParam)
+    val possibleTag = branchTool.getTagFile(checkoutParam)
+    var shaCommit = ""
+
+    if (possibleBranch.exists) {
+      branchTool.updateHeadRefBranch(checkoutParam)
+      Right(
+        (
+          possibleBranch.contentAsString,
+          s"Switched to branch '${checkoutParam}'"
+        )
+      )
+    } else if (possibleTag.exists) {
+      shaCommit = possibleTag.contentAsString
+      branchTool.updateHeadRefDetached(shaCommit)
+      Right((shaCommit, s"Switched to tag '${checkoutParam}'"))
+    } else {
+      ObjectTool(repo).getFileFromShaIncomplete(checkoutParam) match {
+        case Left(error) => Left(error)
+        case Right(fileCommit) =>
+          shaCommit = fileCommit.parent.name + fileCommit.name
+          branchTool.updateHeadRefDetached(shaCommit)
+          val toPrint =
+            s"Note: switching to '${shaCommit}'.\n\n You are in 'detached HEAD' state. You can look around, make experimental\nchanges and commit them, and you can discard any commits you make in this\nstate without impacting any branches by switching back to a branch."
+          Right(shaCommit, toPrint)
+      }
+    }
+  }
+
+  def isThereLocalChanges: Either[String, Boolean] = {
     val index = Index(repo)
     index.getMapFromIndex() match {
       case Left(error) => Left(error)
       case Right(mapIndex) =>
-        getCurrentBranch(repo) match {
+        BranchTool(repo).getCurrentHeadFile match {
           case Left(error) => Left(error)
           case Right(currentBranch) =>
             val mapCommit =
               getMapBlobCommit(repo, currentBranch.contentAsString)
                 .getOrElse(Map())
             val isDiffCommitIndex = if (mapCommit == mapIndex) false else true
-            val isDiffIndexRepo = isThereDiffIndexRepo(repo, mapIndex)
+            val isDiffIndexRepo = isThereDiffIndexRepo(mapIndex)
             Right(isDiffCommitIndex || isDiffIndexRepo)
         }
     }
   }
 
   def isThereDiffIndexRepo(
-      repo: File,
       mapIndex: Map[String, String]
   ): Boolean = {
     val indexedFiles = mapIndex.keySet
@@ -106,28 +113,26 @@ object Checkout {
   }
 
   def createWorkingDirectoryFiles(
-      repo: File,
       mapCommit: Map[String, String]
   ): Unit = {
     @tailrec
-    def createFile(repo: File, mapCommit: Map[String, String]): Unit = {
+    def createFile(mapCommit: Map[String, String]): Unit = {
       if (mapCommit.nonEmpty) {
         val fileToCreate = mapCommit.head
-        getFileFromShaIncomplete(repo, fileToCreate._2) match {
+        ObjectTool(repo).getFileFromShaIncomplete(fileToCreate._2) match {
           case Left(error) =>
           case Right(file) =>
             val fileCreated = (repo / fileToCreate._1)
               .createFileIfNotExists(createParents = true)
             fileCreated.overwrite(file.contentAsString)
         }
-        createFile(repo, mapCommit.tail)
+        createFile(mapCommit.tail)
       }
     }
-
-    createFile(repo, mapCommit)
+    createFile(mapCommit)
   }
 
-  def deleteWorkingDirectoryFiles(repo: File): Unit = {
+  def deleteWorkingDirectoryFiles(): Unit = {
     @tailrec
     def deleteFiles(listFiles: Iterable[File]): Unit = {
       if (listFiles.nonEmpty) {
@@ -139,8 +144,8 @@ object Checkout {
       }
     }
     val index = Index(repo)
-    index.getMapFromIndex match {
-      case Left(error) => ???
+    index.getMapFromIndex() match {
+      case Left(error) => error
       case Right(mapIndex) =>
         val filesToDelete = mapIndex.keySet.map(src => (repo / src))
         deleteFiles(filesToDelete)

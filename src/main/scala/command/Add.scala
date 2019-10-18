@@ -1,6 +1,6 @@
 package command
 import better.files._
-import objects.Blob.handleBlobsAdding
+import objects.Blob
 import objects.Index
 
 object Add {
@@ -17,9 +17,9 @@ object Add {
       .filter(f => f.pathAsString.contains(repo.pathAsString))
       .filter(f => !f.pathAsString.contains(".sgit/"))
 
-    val indexMapAdded = handleBlobsAdding(repo, validFilesToAdd)
+    val indexMapAdded = Blob(repo).handleBlobsAdding(validFilesToAdd)
     val index = Index(repo)
-    index.getMapFromIndex match {
+    index.getMapFromIndex() match {
       case Right(mapOldIndex) => {
         val mapDiff = (mapOldIndex.toSet diff indexMapAdded.toSet).toMap
         val indexMapFinal = mapDiff ++ indexMapAdded

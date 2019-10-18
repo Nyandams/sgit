@@ -5,7 +5,7 @@ import java.nio.file.Files
 import better.files._
 import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
-import util.BranchTool.getCurrentBranch
+import util.BranchTool
 import util.CommitTool.getMapBlobCommit
 
 
@@ -28,7 +28,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
-        val currentBranch =  getCurrentBranch(tempDirPath).getOrElse(File("3"))
+        val currentBranch =   BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("3"))
         val sha1Commit = currentBranch.contentAsString
         val mapCommit = getMapBlobCommit(tempDirPath, sha1Commit).getOrElse(Map())
         val changes = Status.getChangesToCommit(tempDirPath,mapIndex, mapCommit, tempDirPath)
@@ -44,7 +44,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
-        val currentBranch =  getCurrentBranch(tempDirPath).getOrElse(File("3"))
+        val currentBranch =   BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("3"))
         val sha1Commit = currentBranch.contentAsString
         val mapCommit = getMapBlobCommit(tempDirPath, sha1Commit).getOrElse(Map())
         val changes = Status.getChangesToCommit(tempDirPath,mapIndex, mapCommit, tempDirPath)

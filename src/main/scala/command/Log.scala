@@ -3,11 +3,12 @@ package command
 import better.files._
 
 import Console.{RESET, YELLOW}
-import util.ObjectTool.getFileFromSha
-import util.BranchTool.getCurrentBranch
+import util.ObjectTool
 import util.CommitTool.getMapFromCommit
 import java.nio.file._
 import java.util.Date
+
+import util.BranchTool
 
 import scala.annotation.tailrec
 
@@ -19,7 +20,7 @@ object Log {
       getMapFromCommit(repo, shaCommit) match {
         case Left(error) => error
         case Right(mapCommit) =>
-          getFileFromSha(repo, shaCommit) match {
+          ObjectTool(repo).getFileFromSha(shaCommit) match {
             case Left(error) => error
             case Right(commitFile) =>
               val date = new Date(
@@ -36,7 +37,7 @@ object Log {
       }
     }
 
-    getCurrentBranch(repo) match {
+    BranchTool(repo).getCurrentHeadFile match {
       case Left(error) => error + "\n"
       case Right(branch) =>
         val lastCommit = branch.contentAsString

@@ -3,7 +3,7 @@ import java.io
 import java.nio.file.Files
 import util.FileTool.sha1Hash
 import better.files._
-import util.ObjectTool.getFileFromSha
+import util.ObjectTool
 import org.scalatest.{FlatSpec, BeforeAndAfterEach}
 
 
@@ -52,7 +52,7 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
   it should "create a commit file referenced in heads" in {
     Commit.commit(tempDirPath, "1st commit")
     val lastCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
-    getFileFromSha(tempDirPath, lastCommit) match {
+    ObjectTool(tempDirPath).getFileFromSha(lastCommit) match {
       case Right(commit) => assert(commit.exists)
       case Left(error) => assert(false)
     }
@@ -64,7 +64,7 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
     val shaf2 = sha1Hash("text file 2")
     val treeFolderContent = s"blob ${shaf2} 2"
     val shaTree = sha1Hash(treeFolderContent)
-    getFileFromSha(tempDirPath, shaTree) match {
+    ObjectTool(tempDirPath).getFileFromSha(shaTree) match {
       case Right(treeFile) => assert(treeFile.exists)
       case Left(error) => assert(false)
     }

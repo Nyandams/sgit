@@ -1,39 +1,50 @@
 package util
 import better.files._
 
-object ObjectTool {
-  def getFileFromSha(repo: File, sha: String): Either[String, File] = {
-    getFileFromShaIncomplete(repo, sha) match {
-      case Right(file) => Right(file)
-      case Left(error) => Left(error)
+case class ObjectTool(repo: File) {
+  def getObjectsDir: File = repo / ".sgit" / "objects"
+
+  def getObjectFromSha(sha: String): File =
+    getObjectsDir / sha.substring(0, 2) / sha.substring(2)
+
+  def objectExist(sha: String): Boolean = getObjectFromSha(sha).exists
+
+  def getObjectsStartingWith(startSha: String): List[File] = {
+    if (startSha.length > 2) {
+      val dirObject = getObjectsDir / startSha.substring(0, 2)
+      val startNameObject = startSha.substring(2)
+      if (dirObject.exists) {
+        dirObject.children
+          .filter(_.isRegularFile)
+          .filter(_.name.startsWith(startNameObject))
+          .toList
+      } else {
+        List()
+      }
+    } else {
+      List()
     }
   }
 
   def getFileFromShaIncomplete(
-      repo: File,
-      shaCut: String
+      startSha: String
   ): Either[String, File] = {
-    if (shaCut.length > 2) {
-      val dirObject = (repo / ".sgit" / "objects" / shaCut.substring(0, 2))
-      val startNameObject = shaCut.substring(2)
-      if (dirObject.exists) {
-        val filesCorresponding = dirObject.children
-          .filter(child => child.name.startsWith(startNameObject))
-          .toList
-        if (filesCorresponding.isEmpty) {
-          Left(s"pathspec '${shaCut}' did not match any file(s) known to git")
-        } else if (filesCorresponding.length == 1) {
-          Right(filesCorresponding.head)
-        } else {
-          Left(
-            s"please specify a little more, multiple files matched to '${shaCut}'"
-          )
-        }
-      } else {
-        Left(s"pathspec '${shaCut}' did not match any file(s) known to git")
-      }
+    val correspondingFiles = getObjectsStartingWith(startSha)
+    if (correspondingFiles.isEmpty) {
+      Left(s"pathspec '$startSha' did not match any file(s) known to git")
+    } else if (correspondingFiles.length == 1) {
+      Right(correspondingFiles.head)
     } else {
-      Left(s"pathspec '${shaCut}' did not match any file(s) known to git")
+      Left(
+        s"please specify a little more, multiple files matched to '$startSha'"
+      )
+    }
+  }
+
+  def getFileFromSha(sha: String): Either[String, File] = {
+    getFileFromShaIncomplete(sha) match {
+      case Right(file) => Right(file)
+      case Left(error) => Left(error)
     }
   }
 }

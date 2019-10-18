@@ -2,7 +2,6 @@ package util
 import command.Init
 import java.io
 import java.nio.file.Files
-import util.ObjectTool._
 import better.files._
 import util.FileTool.sha1Hash
 import command.Add.add
@@ -24,7 +23,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
     file.overwrite("test")
     add(tempDirPath, Array(file.pathAsString))
     val sha = sha1Hash("test")
-    getFileFromSha(tempDirPath, sha) match {
+    ObjectTool(tempDirPath).getFileFromSha(sha) match {
       case Left(error) => assert(false)
       case Right(file) => assert(file.exists)
     }
@@ -33,7 +32,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
   it should "return an error if the object doesn't exists" in {
     val file = (tempDirPath/"1").createFileIfNotExists(true).overwrite("test")
     val sha = file.sha1
-    getFileFromSha(tempDirPath, sha) match {
+    ObjectTool(tempDirPath).getFileFromSha(sha) match {
       case Left(error) => assert(true)
       case Right(file) => assert(false)
     }
@@ -44,7 +43,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
     file.overwrite("test")
     add(tempDirPath, Array(file.pathAsString))
     val sha = sha1Hash("test")
-    getFileFromShaIncomplete(tempDirPath, sha.substring(0,3)) match {
+    ObjectTool(tempDirPath).getFileFromShaIncomplete(sha.substring(0,3)) match {
       case Left(error) => assert(false)
       case Right(file) => assert(file.exists)
     }
@@ -53,7 +52,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
   it should "return an error if the object doesn't exists" in {
     val file = (tempDirPath/"1").createFileIfNotExists(true).overwrite("test")
     val sha = file.sha1
-    getFileFromShaIncomplete(tempDirPath, sha.substring(0,3)) match {
+    ObjectTool(tempDirPath).getFileFromShaIncomplete(sha.substring(0,3)) match {
       case Left(error) => assert(true)
       case Right(file) => assert(false)
     }
@@ -63,7 +62,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
     val file = (tempDirPath/"1").createFileIfNotExists(true)
     file.overwrite("test")
     add(tempDirPath, Array(file.pathAsString))
-    getFileFromShaIncomplete(tempDirPath, "sdok") match {
+    ObjectTool(tempDirPath).getFileFromShaIncomplete("sdok") match {
       case Left(error) => assert(true)
       case Right(file) => assert(false)
     }
@@ -73,14 +72,14 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
     (tempDirPath/"objects"/"d0"/"12556658").createFileIfNotExists(true)
     (tempDirPath/"objects"/"d0"/"1657").createFileIfNotExists(true)
     val sha = "d01"
-    getFileFromShaIncomplete(tempDirPath, sha) match {
+    ObjectTool(tempDirPath).getFileFromShaIncomplete(sha) match {
       case Left(error) => assert(true)
       case Right(file) => assert(false)
     }
   }
 
   it should "return an error if the shaCut is too short" in {
-    getFileFromShaIncomplete(tempDirPath, "d0") match {
+    ObjectTool(tempDirPath).getFileFromShaIncomplete("d0") match {
       case Left(error) => assert(true)
       case Right(file) => assert(false)
     }

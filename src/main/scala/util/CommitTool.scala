@@ -1,7 +1,5 @@
 package util
 import better.files._
-import util.BranchTool.getCurrentBranch
-import util.ObjectTool.getFileFromSha
 import java.io.File.separator
 
 import scala.annotation.tailrec
@@ -50,7 +48,7 @@ object CommitTool {
       }
     }
 
-    getFileFromSha(repo, sha1Commit) match {
+    ObjectTool(repo).getFileFromSha(sha1Commit) match {
       case Right(commitFile) => Right(loop(commitFile.lines.toList, Map()))
       case Left(error)       => Left(error)
     }
@@ -93,7 +91,7 @@ object CommitTool {
           if (lineSplit(0) == "tree") {
 
             val newMapTree = mapTree
-            getFileFromSha(repo, sha) match {
+            ObjectTool(repo).getFileFromSha(sha) match {
               case Right(subTreeFile) =>
                 loop(subTreeFile.lines.toList, newMapTree, newPath) match {
                   case Left(error) => Left(error)
@@ -122,7 +120,7 @@ object CommitTool {
       }
     }
 
-    getFileFromSha(repo, sha1Commit) match {
+    ObjectTool(repo).getFileFromSha(sha1Commit) match {
       case Right(treeFile) =>
         loop(treeFile.lines.toList, Map(), parent) match {
           case Right(mapTree) => Right(mapTree)
@@ -133,7 +131,7 @@ object CommitTool {
   }
 
   def isThereACommit(repo: File): Boolean = {
-    getCurrentBranch(repo) match {
+    BranchTool(repo).getCurrentHeadFile match {
       case Left(error) => false
       case Right(currentBranch) =>
         if (currentBranch.contentAsString.nonEmpty) {

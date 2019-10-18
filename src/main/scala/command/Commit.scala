@@ -6,7 +6,7 @@ import objects.Index
 import java.util.regex.Pattern
 import java.io.File.separator
 import annotation.tailrec
-import util.BranchTool.getCurrentBranch
+import util.BranchTool
 import util.CommitTool._
 
 object Commit {
@@ -16,7 +16,7 @@ object Commit {
     index.getMapFromIndex match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
-        getCurrentBranch(repo) match {
+        BranchTool(repo).getCurrentHeadFile match {
           case Right(currentBranch) =>
             if (keys.nonEmpty) {
               val separator =

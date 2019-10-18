@@ -1,6 +1,5 @@
 package objects
 import better.files._
-import util.FileTool._
 import annotation.tailrec
 
 case class Index(repo: File) {
@@ -13,16 +12,14 @@ case class Index(repo: File) {
     * Replace the Index with a new Index that contains the information of indexMap
     * @param indexMap Map(src -> SHA-1) of the new index
     */
-  def updateIndex(indexMap: Map[String, String]) = {
-    val indexFile = repo / ".sgit" / "index"
+  def updateIndex(indexMap: Map[String, String]): Unit = {
+    val indexFile = getIndexFile
     if (indexFile.exists) {
       indexFile.delete()
       indexFile.createFile()
       indexMap foreach {
         case (key, value) => indexFile.appendText(value + " " + key + "\n")
       }
-    } else {
-      println("index not found")
     }
   }
 

@@ -1,28 +1,54 @@
 package util
 import better.files._
+import java.io.File.separator
 
-object BranchTool {
+case class BranchTool(repo: File) {
 
-  def getHeadFilePath(repo: File): Either[String, String] = {
-    val headFile = (repo / ".sgit" / "HEAD")
-    if (headFile.exists) {
-      val headSplited = headFile.contentAsString.split(" ")
-      Right(headSplited(1))
+  def getHeadFile: File = repo / ".sgit" / "HEAD"
+
+  def getRefsFolder: File = repo / ".sgit" / "refs"
+
+  def getHeadsFolder: File = getRefsFolder / "heads"
+
+  def getTagsFolder: File = getRefsFolder / "tags"
+
+  def getBranchFile(nameBranch: String): File = getHeadsFolder / nameBranch
+
+  def getTagFile(nameTag: String): File = getTagsFolder / nameTag
+
+  def getDetachedFile: File = getRefsFolder / "detached"
+
+  def headExist: Boolean = getHeadFile.exists
+
+  def getRelativeCurrentHeadFilePath: Either[String, String] = {
+    if (headExist) {
+      Right(getHeadFile.contentAsString.split(" ")(1))
     } else {
       Left("HEAD not found")
     }
   }
 
+  def updateHeadRefBranch(branch: String): Unit = {
+    if (headExist)
+      getHeadFile.overwrite(s"ref: refs${separator}heads${separator}$branch")
+  }
+
+  def updateHeadRefDetached(sha: String): Unit = {
+    if (headExist) {
+      getDetachedFile.createFileIfNotExists(createParents = true).overwrite(sha)
+      getHeadFile.overwrite(s"ref: refs${separator}detached")
+    }
+  }
+
   /**
     * Return the file corresponding to the content of HEAD
-    * @param repo directory of the sgit repo
     * @return Either[error, File]
     */
-  def getCurrentBranch(repo: File): Either[String, File] = {
-    getHeadFilePath(repo) match {
-      case Right(headFile) =>
-        Right((repo / ".sgit" / headFile).createFileIfNotExists())
+  def getCurrentHeadFile: Either[String, File] = {
+    getRelativeCurrentHeadFilePath match {
       case Left(error) => Left(error)
+      case Right(relativeHeadFile) =>
+        Right((repo / ".sgit" / relativeHeadFile).createFileIfNotExists())
     }
   }
 }

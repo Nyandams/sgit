@@ -4,7 +4,7 @@ import Console.{GREEN, RED, RESET, YELLOW_B, UNDERLINED}
 import better.files._
 import objects.Index
 import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
-import util.BranchTool.getCurrentBranch
+import util.BranchTool
 import util.CommitTool.getMapBlobCommit
 
 object Status {
@@ -23,7 +23,7 @@ object Status {
         val notStagedChanges = getNotStagedChanges(repo, mapIndex, userDir)
         val untrackedFiles = getUntrackedFiles(repo, keys, userDir)
 
-        getCurrentBranch(repo) match {
+        BranchTool(repo).getCurrentHeadFile match {
           case Right(currentBranch) =>
             toPrint += s"On branch ${currentBranch.name}\n\n"
             var changesToCommit = ""
