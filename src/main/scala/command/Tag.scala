@@ -4,10 +4,11 @@ import util.BranchTool.getCurrentBranch
 import util.CommitTool.isThereACommit
 
 object Tag {
-  def newTag(repo: File, nameTag: String): Unit = {
+  def newTag(repo: File, nameTag: String): String = {
+    var toPrint = ""
     if (isThereACommit(repo)) {
       getCurrentBranch(repo) match {
-        case Left(error) => println("Failed to resolve 'HEAD' as a valid ref")
+        case Left(error) => toPrint += "Failed to resolve 'HEAD' as a valid ref\n"
         case Right(currentBranch) =>
           val splitTagName = nameTag.split(" ")
           if (splitTagName.length == 1) {
@@ -16,30 +17,31 @@ object Tag {
               if (tagFolder.list.contains(
                     (repo / ".sgit" / "refs" / "tags" / nameTag)
                   )) {
-                println(s"tag '${nameTag}' already exists")
+                toPrint += s"tag '${nameTag}' already exists\n"
               } else {
                 val tagFile = (repo / ".sgit" / "refs" / "tags" / nameTag)
                   .createFileIfNotExists(true)
                 tagFile.appendText(currentBranch.contentAsString)
               }
             } else {
-              println("no tags directory")
+              toPrint += "no tags directory\n"
             }
           } else {
-            println(s"'${nameTag}' is not a valid tag name")
+            toPrint += s"'${nameTag}' is not a valid tag name\n"
           }
       }
     } else {
-      println(s"Not a valid object name: 'master'.")
+      toPrint += s"Not a valid object name: 'master'.\n"
     }
-
+  toPrint
   }
 
-  def showTags(repo: File): Unit = {
+  def showTags(repo: File): String = {
+    var toPrint = ""
     val tagFolder = (repo / ".sgit" / "refs" / "tags")
     if (tagFolder.exists) {
-      println(tagFolder.list.map(f => f.name) mkString "\n")
+      toPrint += (tagFolder.children.map(f => f.name) mkString "\n") + "\n"
     }
-
+    toPrint
   }
 }

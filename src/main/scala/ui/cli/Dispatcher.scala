@@ -26,8 +26,8 @@ object Dispatcher {
               case "commit" => commit(repo, config.commitMessage)
               case "status" => status(repo)
               case "tag" =>
-                if (config.tagName.nonEmpty) newTag(repo, config.tagName)
-                else showTags(repo)
+                if (config.tagName.nonEmpty) print(newTag(repo, config.tagName))
+                else print(showTags(repo))
               case "diff" => diff(repo)
               case "log"  => log(repo)
               case "branch" =>
