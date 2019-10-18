@@ -45,9 +45,6 @@ object Status {
               toPrint += "nothing added to commit but untracked files present (use \"git add\" to track)\n"
 
           case Left(error) => toPrint += (error + "\n")
-          case Left(error) => toPrint += (error + "\n")
-
-          case Left(error) => toPrint += (error + "\n")
         }
 
     }

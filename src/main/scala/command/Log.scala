@@ -37,15 +37,13 @@ object Log {
     }
 
     getCurrentBranch(repo) match {
-      case Left(error) => println(error)
+      case Left(error) => error + "\n"
       case Right(branch) =>
         val lastCommit = branch.contentAsString
         if (lastCommit.nonEmpty) {
-          println(loop(repo, lastCommit, ""))
+          loop(repo, lastCommit, "") + "\n"
         } else {
-          println(
-            s"your current branch '${branch.name}' does not have any commits yet"
-          )
+            s"your current branch '${branch.name}' does not have any commits yet\n"
         }
     }
   }

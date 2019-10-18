@@ -29,7 +29,7 @@ object Dispatcher {
                 if (config.tagName.nonEmpty) print(newTag(repo, config.tagName))
                 else print(showTags(repo))
               case "diff" => diff(repo)
-              case "log"  => log(repo)
+              case "log"  => print(log(repo))
               case "branch" =>
                 if (config.file.nonEmpty) newBranch(repo, config.file)
                 else if (config.verbose) showBranchVerbose(repo)
