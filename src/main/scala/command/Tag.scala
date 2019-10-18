@@ -8,7 +8,8 @@ object Tag {
     var toPrint = ""
     if (isThereACommit(repo)) {
       getCurrentBranch(repo) match {
-        case Left(error) => toPrint += "Failed to resolve 'HEAD' as a valid ref\n"
+        case Left(error) =>
+          toPrint += "Failed to resolve 'HEAD' as a valid ref\n"
         case Right(currentBranch) =>
           val splitTagName = nameTag.split(" ")
           if (splitTagName.length == 1) {
@@ -33,7 +34,7 @@ object Tag {
     } else {
       toPrint += s"Not a valid object name: 'master'.\n"
     }
-  toPrint
+    toPrint
   }
 
   def showTags(repo: File): String = {

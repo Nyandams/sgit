@@ -4,7 +4,7 @@ import Console.{GREEN, RED, RESET, YELLOW_B, UNDERLINED}
 import better.files._
 import objects.Index.getMapFromIndex
 import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
-import util.BranchTool.{getCurrentBranch}
+import util.BranchTool.getCurrentBranch
 import util.CommitTool.getMapBlobCommit
 
 object Status {
@@ -14,8 +14,8 @@ object Status {
     *
     * @param repo
     */
-  def status(repo: File, userDir: File = getUserDirectory): Unit = {
-
+  def status(repo: File, userDir: File = getUserDirectory): String = {
+    var toPrint = ""
     getMapFromIndex(repo) match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
@@ -24,10 +24,10 @@ object Status {
 
         getCurrentBranch(repo) match {
           case Right(currentBranch) =>
-            println(s"On branch ${currentBranch.name}\n")
+            toPrint += s"On branch ${currentBranch.name}\n\n"
             var changesToCommit = ""
             if (currentBranch.isEmpty) {
-              println("No commits yet\n")
+              toPrint += "No commits yet\n\n"
               changesToCommit =
                 getChangesToCommit(repo, mapIndex, Map(), userDir)
             } else {
@@ -37,21 +37,21 @@ object Status {
               changesToCommit =
                 getChangesToCommit(repo, mapIndex, mapCommit, userDir)
             }
-            if (changesToCommit.nonEmpty) println(changesToCommit)
-            if (notStagedChanges.nonEmpty) println(notStagedChanges)
-            if (untrackedFiles.nonEmpty) println(untrackedFiles)
+            if (changesToCommit.nonEmpty) toPrint += (changesToCommit + "\n")
+            if (notStagedChanges.nonEmpty) toPrint += (notStagedChanges + "\n")
+            if (untrackedFiles.nonEmpty) toPrint += (untrackedFiles + "\n")
 
             if (changesToCommit.isEmpty && notStagedChanges.nonEmpty)
-              println(
-                "nothing added to commit but untracked files present (use \"git add\" to track)"
-              )
-          case Left(error) => println(error)
-          case Left(error) => println(error)
+              toPrint += "nothing added to commit but untracked files present (use \"git add\" to track)\n"
 
-          case Left(error) => println(error)
+          case Left(error) => toPrint += (error + "\n")
+          case Left(error) => toPrint += (error + "\n")
+
+          case Left(error) => toPrint += (error + "\n")
         }
 
     }
+    toPrint
   }
 
   def getUntrackedFiles(

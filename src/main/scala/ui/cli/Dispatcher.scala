@@ -24,7 +24,7 @@ object Dispatcher {
               case "add"    => add(repo, config.files)
               case "rm"     => rm(repo, config.files)
               case "commit" => commit(repo, config.commitMessage)
-              case "status" => status(repo)
+              case "status" => print(status(repo))
               case "tag" =>
                 if (config.tagName.nonEmpty) print(newTag(repo, config.tagName))
                 else print(showTags(repo))
