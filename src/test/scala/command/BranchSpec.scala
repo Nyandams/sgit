@@ -18,7 +18,7 @@ class BranchSpec extends FlatSpec with BeforeAndAfterEach {
   "The newBranch command" should "create a branch in .sgit/refs/heads with the right content in it" in {
     val f1 = (tempDirPath/"1").createFile()
     Add(tempDirPath).add(Array(f1.pathAsString))
-    Commit.commit(tempDirPath, "1st Commit")
+    Commit(tempDirPath).commit("1st Commit")
     Branch(tempDirPath).newBranch("test")
     val sha = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     val branchFile = (tempDirPath/".sgit"/"refs"/"heads"/"test")
@@ -34,13 +34,13 @@ class BranchSpec extends FlatSpec with BeforeAndAfterEach {
   it should "not create a branch if it already exists" in {
     val f1 = (tempDirPath/"1").createFile()
     Add(tempDirPath).add(Array(f1.pathAsString))
-    Commit.commit(tempDirPath, "1st Commit")
+    Commit(tempDirPath).commit("1st Commit")
     Branch(tempDirPath).newBranch("test")
     val branchFile1Content = (tempDirPath/".sgit"/"refs"/"heads"/"test").contentAsString
 
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
-    Commit.commit(tempDirPath, "2nd Commit")
+    Commit(tempDirPath).commit("2nd Commit")
     Branch(tempDirPath).newBranch("test")
     val branchFile2Content = (tempDirPath/".sgit"/"refs"/"heads"/"test").contentAsString
     assert(branchFile2Content == branchFile1Content)
@@ -49,7 +49,7 @@ class BranchSpec extends FlatSpec with BeforeAndAfterEach {
   "the showBranch command" should "return a number of line corresponding to the number of branch" in {
     val f1 = (tempDirPath/"1").createFile()
     Add(tempDirPath).add(Array(f1.pathAsString))
-    Commit.commit(tempDirPath, "1st Commit")
+    Commit(tempDirPath).commit("1st Commit")
     Branch(tempDirPath).newBranch("test")
     Branch(tempDirPath).newBranch("test2")
     val printLength = Branch(tempDirPath).showBranch.split("\n").length
@@ -59,7 +59,7 @@ class BranchSpec extends FlatSpec with BeforeAndAfterEach {
   "the showBranch command" should "all the branch created" in {
     val f1 = (tempDirPath/"1").createFile()
     Add(tempDirPath).add(Array(f1.pathAsString))
-    Commit.commit(tempDirPath, "1st Commit")
+    Commit(tempDirPath).commit("1st Commit")
     Branch(tempDirPath).newBranch( "test")
     Branch(tempDirPath).newBranch( "test2")
     val printArray = Branch(tempDirPath).showBranch.split("\n")
@@ -69,7 +69,7 @@ class BranchSpec extends FlatSpec with BeforeAndAfterEach {
   "the showBranchVerbose command" should "return a number of line corresponding to the number of branch" in {
     val f1 = (tempDirPath/"1").createFile()
     Add(tempDirPath).add(Array(f1.pathAsString))
-    Commit.commit(tempDirPath, "1st Commit")
+    Commit(tempDirPath).commit("1st Commit")
     Branch(tempDirPath).newBranch("test")
     Branch(tempDirPath).newBranch("test2")
     val printLength = Branch(tempDirPath).showBranchVerbose.split("\n").length

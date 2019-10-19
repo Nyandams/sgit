@@ -17,12 +17,14 @@ case class Log(repo: File) {
 
     @tailrec
     def loop(listCommits: List[Map[String, String]], log: String): String = {
-      if(listCommits.nonEmpty){
+      if (listCommits.nonEmpty) {
         val currentCommit = listCommits.head
         ObjectTool(repo).getFileFromSha(currentCommit("name")) match {
           case Left(error) => error
           case Right(commitFile) =>
-            val date = new Date(Files.getLastModifiedTime(commitFile.path).toMillis)
+            val date = new Date(
+              Files.getLastModifiedTime(commitFile.path).toMillis
+            )
             val commitMsg = currentCommit("msg").split("\n") mkString "\n    "
             val newLog = log + s"${YELLOW}commit ${currentCommit("name")}${RESET}\nDate:   ${date}\n\n    ${commitMsg}\n\n"
             loop(listCommits.tail, newLog)

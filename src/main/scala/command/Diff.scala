@@ -6,10 +6,10 @@ import util.ObjectTool
 
 import Console.{GREEN, RED, RESET}
 
-object Diff {
-  def diff(repo: File): String = {
+case class Diff(repo: File) {
+  def diff: String = {
     val index = Index(repo)
-    index.getMapFromIndex match {
+    index.getMapFromIndex() match {
       case Left(error) => error
       case Right(mapIndex) =>
         val tripletNewOldName = mapIndex.toList.map(
@@ -22,11 +22,11 @@ object Diff {
               tuple._1
             )
         )
-        getDiffAllFiles(repo, tripletNewOldName)
+        getDiffAllFiles(tripletNewOldName)
     }
   }
 
-  def getDiffList(
+  private def getDiffList(
       mapMatrix: Map[(Int, Int), Int],
       sizeNewFile: Int,
       sizeOldFile: Int
@@ -94,7 +94,7 @@ object Diff {
     loop(sizeNewFile, sizeOldFile, List())
   }
 
-  def getDiffStringOneFile(
+  private def getDiffStringOneFile(
       listDiff: List[(String, Int)],
       newFileLines: List[String],
       oldFileLines: List[String]
@@ -119,8 +119,7 @@ object Diff {
     loop("", listDiff.sortWith(_._2 < _._2))
   }
 
-  def getDiffAllFiles(
-      repo: File,
+  private def getDiffAllFiles(
       tripletNewOldName: List[(File, File, String)]
   ): String = {
 
@@ -155,7 +154,7 @@ object Diff {
     loop(tripletNewOldName, "")
   }
 
-  def constructLCSMatrix(
+  private def constructLCSMatrix(
       newFile: List[String],
       oldFile: List[String]
   ): Map[(Int, Int), Int] = {

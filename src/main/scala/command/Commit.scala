@@ -8,12 +8,13 @@ import java.io.File.separator
 import annotation.tailrec
 import util.BranchTool
 import util.CommitTool
+import util.ObjectTool
 
-object Commit {
+case class Commit(repo: File) {
 
-  def commit(repo: File, message: String): String = {
+  def commit(message: String): String = {
     val index = Index(repo)
-    index.getMapFromIndex match {
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
         BranchTool(repo).getCurrentHeadFile match {
@@ -30,16 +31,16 @@ object Commit {
                 val treeCommit = tree(
                   srcs = listSorted,
                   size = sizeMax,
-                  mapIndex = mapIndex,
-                  repo = repo
+                  mapIndex = mapIndex
                 )
 
                 val lastCommit = currentBranch.contentAsString
-
+                val objectTool = ObjectTool(repo)
                 if (lastCommit.isEmpty) {
                   val contentCommit = s"tree ${treeCommit}\n\n${message}"
                   val shaCommit = sha1Hash(contentCommit)
-                  getFileSubDir(repo, shaCommit)
+                  objectTool
+                    .getObjectFromSha(shaCommit)
                     .createFileIfNotExists(createParents = true)
                     .overwrite(contentCommit)
                   currentBranch.overwrite(shaCommit)
@@ -56,7 +57,8 @@ object Commit {
                         val contentCommit =
                           s"tree ${treeCommit}\nparent ${lastCommit}\n\n${message}"
                         val shaCommit = sha1Hash(contentCommit)
-                        getFileSubDir(repo, shaCommit)
+                        objectTool
+                          .getObjectFromSha(shaCommit)
                           .createFileIfNotExists(createParents = true)
                           .overwrite(contentCommit)
                         currentBranch.overwrite(shaCommit)
@@ -89,17 +91,18 @@ object Commit {
     * @return
     */
   @tailrec
-  def tree(
+  private def tree(
       srcs: List[List[String]],
       size: Int,
       mapParent: Map[String, List[String]] = Map(),
-      mapIndex: Map[String, String],
-      repo: File
+      mapIndex: Map[String, String]
   ): String = {
+    val objectTool = ObjectTool(repo)
     if (size == 0) {
       val contentTreeCommit = mapParent("") mkString "\n"
       val sha = sha1Hash(contentTreeCommit)
-      getFileSubDir(repo, sha)
+      objectTool
+        .getObjectFromSha(sha)
         .createFileIfNotExists(createParents = true)
         .overwrite(contentTreeCommit)
       sha
@@ -145,7 +148,8 @@ object Commit {
         dirsStep.map(d => mapParentPostFiles(d) mkString "\n")
       contentTreeList.map(
         content =>
-          getFileSubDir(repo, sha1Hash(content))
+          objectTool
+            .getObjectFromSha(sha1Hash(content))
             .createFileIfNotExists(createParents = true)
             .overwrite(content)
       )
@@ -155,19 +159,12 @@ object Commit {
         srcs = srcsSliced,
         size = size - 1,
         mapIndex = mapIndex,
-        repo = repo,
         mapParent = mapParentPostTree
       )
     }
   }
 
-  def getFileSubDir(repo: File, sha1: String): File = {
-    val dirTree = sha1.substring(0, 2)
-    val nameTree = sha1.substring(2)
-    (repo / ".sgit" / "objects" / dirTree / nameTree)
-  }
-
-  def removeLastMax(a: List[String], size: Int): List[String] = {
+  private def removeLastMax(a: List[String], size: Int): List[String] = {
     if (a.length == size) {
       a.slice(0, a.length - 1)
     } else {
@@ -176,7 +173,7 @@ object Commit {
   }
 
   @tailrec
-  def updateMapParent(
+  private def updateMapParent(
       mapParent: Map[String, List[String]],
       listParents: List[String],
       listChildren: List[String]
@@ -191,7 +188,7 @@ object Commit {
 
   }
 
-  def updateMapParentElement(
+  private def updateMapParentElement(
       mapParent: Map[String, List[String]],
       parent: String,
       child: String

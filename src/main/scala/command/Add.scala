@@ -11,7 +11,7 @@ case class Add(repo: File) {
     Index(repo).addFilesIndex(indexMapAdded)
   }
 
-  private def getFilesToAdd(filesPath: List[String]): List[File] ={
+  private def getFilesToAdd(filesPath: List[String]): List[File] = {
     val files = filesPath.map(fp => File(fp))
     val dirs = files.filter(f => f.isDirectory)
     val directFiles = files.filter(f => f.isRegularFile)

@@ -129,19 +129,23 @@ case class CommitTool(repo: File) {
   }
 
   /**
-   * List the commit and its ancestors in a map format if the commit exist
-   * add the sha of the commit in the map
-   */
+    * List the commit and its ancestors in a map format if the commit exist
+    * add the sha of the commit in the map
+    */
   def listMapCommit(shaCommit: String): List[Map[String, String]] = {
 
     @tailrec
-    def retrieveParentCommit(listCommit: List[Map[String, String]]): List[Map[String, String]] ={
+    def retrieveParentCommit(
+        listCommit: List[Map[String, String]]
+    ): List[Map[String, String]] = {
       val currentCommit = listCommit.last
-      if (currentCommit.contains("parent")){
+      if (currentCommit.contains("parent")) {
         getMapFromCommit(currentCommit("parent")) match {
           case Left(error) => listCommit
           case Right(mapParentCommit) =>
-            val newList = (listCommit :+ (mapParentCommit + ("name" -> currentCommit("parent"))))
+            val newList = (listCommit :+ (mapParentCommit + ("name" -> currentCommit(
+              "parent"
+            ))))
             retrieveParentCommit(newList)
         }
       } else {

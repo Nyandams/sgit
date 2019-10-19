@@ -12,7 +12,7 @@ case class Branch(repo: File) {
     if (commitTool.isThereACommit) {
       val branchTool = BranchTool(repo)
       val newBranch = branchTool.getBranchFile(nameBranch)
-      if (newBranch.exists){
+      if (newBranch.exists) {
         s"branch '${nameBranch}' already exists"
       } else {
         newBranch.createFileIfNotExists(true)
@@ -32,9 +32,12 @@ case class Branch(repo: File) {
         case Left(error) => error
         case Right(fileHead) =>
           val currentBranch = fileHead.name
-          branchTool
-            .getListBranchNames
-            .map(name => if (name == currentBranch) s"* ${GREEN}${name}${RESET}" else s"  ${name}") mkString "\n"
+          branchTool.getListBranchNames
+            .map(
+              name =>
+                if (name == currentBranch) s"* ${GREEN}${name}${RESET}"
+                else s"  ${name}"
+            ) mkString "\n"
       }
     } else {
       ""

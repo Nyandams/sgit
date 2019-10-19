@@ -7,21 +7,20 @@ import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
 import util.BranchTool
 import util.CommitTool
 
-object Status {
+case class Status(repo: File = getUserDirectory) {
 
   /**
     * Show untracked files, Modified Files and deleted files
     *
-    * @param repo
     */
-  def status(repo: File, userDir: File = getUserDirectory): String = {
+  def status(userDir: File = getUserDirectory): String = {
     var toPrint = ""
     val index = Index(repo)
-    index.getMapFromIndex match {
+    index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
-        val notStagedChanges = getNotStagedChanges(repo, mapIndex, userDir)
-        val untrackedFiles = getUntrackedFiles(repo, keys, userDir)
+        val notStagedChanges = getNotStagedChanges(mapIndex, userDir)
+        val untrackedFiles = getUntrackedFiles(keys, userDir)
 
         BranchTool(repo).getCurrentHeadFile match {
           case Right(currentBranch) =>
@@ -29,14 +28,12 @@ object Status {
             var changesToCommit = ""
             if (currentBranch.isEmpty) {
               toPrint += "No commits yet\n\n"
-              changesToCommit =
-                getChangesToCommit(repo, mapIndex, Map(), userDir)
+              changesToCommit = getChangesToCommit(mapIndex, Map(), userDir)
             } else {
               val sha1Commit = currentBranch.contentAsString
               val mapCommit =
                 CommitTool(repo).getMapBlobCommit(sha1Commit).getOrElse(Map())
-              changesToCommit =
-                getChangesToCommit(repo, mapIndex, mapCommit, userDir)
+              changesToCommit = getChangesToCommit(mapIndex, mapCommit, userDir)
             }
             if (changesToCommit.nonEmpty) toPrint += (changesToCommit + "\n")
             if (notStagedChanges.nonEmpty) toPrint += (notStagedChanges + "\n")
@@ -52,11 +49,7 @@ object Status {
     toPrint
   }
 
-  def getUntrackedFiles(
-      repo: File,
-      indexSet: Set[String],
-      userDir: File
-  ): String = {
+  def getUntrackedFiles(indexSet: Set[String], userDir: File): String = {
     val allFileRepo = allFileRepoSet(repo)
 
     val untrackedList = allFileRepo.diff(indexSet)
@@ -72,7 +65,6 @@ object Status {
   }
 
   def getNotStagedChanges(
-      repo: File,
       mapIndex: Map[String, String],
       userDir: File
   ): String = {
@@ -101,7 +93,6 @@ object Status {
   }
 
   def getStagedAddition(
-      repo: File,
       mapIndex: Map[String, String],
       mapCommit: Map[String, String],
       userDir: File
@@ -111,7 +102,6 @@ object Status {
   }
 
   def getStagedDeletion(
-      repo: File,
       mapIndex: Map[String, String],
       mapCommit: Map[String, String],
       userDir: File
@@ -121,7 +111,6 @@ object Status {
   }
 
   def getStagedModification(
-      repo: File,
       mapIndex: Map[String, String],
       mapCommit: Map[String, String],
       userDir: File
@@ -134,15 +123,14 @@ object Status {
   }
 
   def getChangesToCommit(
-      repo: File,
       mapIndex: Map[String, String],
       mapCommit: Map[String, String],
       userDir: File
   ): String = {
-    val stagedAddition = getStagedAddition(repo, mapIndex, mapCommit, userDir)
+    val stagedAddition = getStagedAddition(mapIndex, mapCommit, userDir)
     val stagedModification =
-      getStagedModification(repo, mapIndex, mapCommit, userDir)
-    val stagedDeletion = getStagedDeletion(repo, mapIndex, mapCommit, userDir)
+      getStagedModification(mapIndex, mapCommit, userDir)
+    val stagedDeletion = getStagedDeletion(mapIndex, mapCommit, userDir)
 
     if (stagedAddition.nonEmpty || stagedModification.nonEmpty || stagedDeletion.nonEmpty) {
       s"Changes to be comitted:\n ${GREEN}${stagedAddition}\n${stagedModification}\n${stagedDeletion}${RESET}"

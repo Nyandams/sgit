@@ -87,7 +87,8 @@ case class Checkout(repo: File) {
           case Left(error) => Left(error)
           case Right(currentBranch) =>
             val mapCommit =
-              CommitTool(repo).getMapBlobCommit(currentBranch.contentAsString)
+              CommitTool(repo)
+                .getMapBlobCommit(currentBranch.contentAsString)
                 .getOrElse(Map())
             val isDiffCommitIndex = if (mapCommit == mapIndex) false else true
             val isDiffIndexRepo = isThereDiffIndexRepo(mapIndex)

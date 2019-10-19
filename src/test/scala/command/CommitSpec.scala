@@ -23,34 +23,34 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
   }
 
   "The commit command" should "run" in {
-    Commit.commit(tempDirPath, "")
+    Commit(tempDirPath).commit("")
   }
 
   it should "create the branch in .sgit/branches if it is its first commit" in {
-    Commit.commit(tempDirPath, "1st commit")
+    Commit(tempDirPath).commit("1st commit")
     assert((tempDirPath/".sgit"/"refs"/"heads"/"master").exists)
   }
 
   it should "update the current branch with the commit" in {
-    Commit.commit(tempDirPath, "1st commit")
+    Commit(tempDirPath).commit("1st commit")
     val lastCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     val f = (tempDirPath/"3").createFileIfNotExists(createParents = true)
     Add(tempDirPath).add(Array(f.pathAsString))
-    Commit.commit(tempDirPath, "2nd commit")
+    Commit(tempDirPath).commit("2nd commit")
     val newCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     assert(lastCommit != newCommit)
   }
 
   it should "not create commit object if the previous commit is the same" in {
-    Commit.commit(tempDirPath, "1st commit")
+    Commit(tempDirPath).commit("1st commit")
     val lastCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
-    Commit.commit(tempDirPath, "2nd commit")
+    Commit(tempDirPath).commit("2nd commit")
     val newCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     assert(lastCommit == newCommit)
   }
 
   it should "create a commit file referenced in heads" in {
-    Commit.commit(tempDirPath, "1st commit")
+    Commit(tempDirPath).commit("1st commit")
     val lastCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     ObjectTool(tempDirPath).getFileFromSha(lastCommit) match {
       case Right(commit) => assert(commit.exists)
@@ -59,7 +59,7 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
   }
 
   it should "create a tree for folder directory containing 2" in {
-    Commit.commit(tempDirPath, "1st commit")
+    Commit(tempDirPath).commit("1st commit")
 
     val shaf2 = sha1Hash("text file 2")
     val treeFolderContent = s"blob ${shaf2} 2"

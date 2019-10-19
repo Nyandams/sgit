@@ -9,7 +9,7 @@ case class Tag(repo: File) {
     if (commitTool.isThereACommit) {
       val branchTool = BranchTool(repo)
       val newTag = branchTool.getTagFile(nameTag)
-      if (newTag.exists){
+      if (newTag.exists) {
         s"branch '${nameTag}' already exists"
       } else {
         newTag.createFileIfNotExists(true)
