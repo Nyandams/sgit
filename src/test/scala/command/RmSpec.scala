@@ -12,26 +12,26 @@ class RmSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
   }
 
   "The rm command" should "run" in {
-    Rm.rm(tempDirPath, Array())
+    Rm(tempDirPath).rm(Array())
   }
 
   it should "delete the file that has been removed" in {
     val f = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f.pathAsString))
-    Rm.rm(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
+    Rm(tempDirPath).rm(Array(f.pathAsString))
     assert(!f.exists)
   }
 
   it should "delete a line in index" in {
     val f = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     val index = (tempDirPath/".sgit/index")
     val nbLine = index.lineCount
-    Rm.rm(tempDirPath, Array(f.pathAsString))
+    Rm(tempDirPath).rm(Array(f.pathAsString))
     assert(nbLine == index.lineCount + 1)
   }
   

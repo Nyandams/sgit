@@ -23,6 +23,33 @@ case class Index(repo: File) {
     }
   }
 
+  def addFilesIndex(indexMapAdded: Map[String, String]): String = {
+    getMapFromIndex() match {
+      case Right(mapOldIndex) => {
+        val mapDiff = (mapOldIndex.toSet diff indexMapAdded.toSet).toMap
+        val indexMapFinal = mapDiff ++ indexMapAdded
+        updateIndex(indexMapFinal)
+        ""
+      }
+      case Left(error) => error
+    }
+  }
+
+  def rmFilesIndex(filesToDelete: List[File]): String = {
+    getMapFromIndex() match {
+      case Right(mapOldIndex) => {
+        val relativizedDeletedFile =
+          filesToDelete.map(file => repo.relativize(file).toString)
+
+        val mapWithoutDeleted =
+          mapOldIndex.filterKeys(src => !relativizedDeletedFile.contains(src))
+        updateIndex(mapWithoutDeleted)
+        ""
+      }
+      case Left(error) => error
+    }
+  }
+
   /**
     * Return a map corresponding to the index
     * @return Map(src -> SHA-1)

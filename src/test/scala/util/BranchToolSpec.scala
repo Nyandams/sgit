@@ -13,7 +13,7 @@ class BranchToolSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
   }
 
   "BranchTool.getHeadFilePath" should "run" in {

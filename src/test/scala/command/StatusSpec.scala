@@ -14,15 +14,15 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
   }
 
   "The Status command" should "get files added that need to be commited" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     Commit.commit(tempDirPath, "commit")
     val f2 = (tempDirPath/"2").createFile()
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
@@ -37,7 +37,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "not get files that need to be commited when not needed" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     Commit.commit(tempDirPath, "commit")
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
@@ -53,9 +53,9 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "get nothing is there is no modification in the working directory that need to be added" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
@@ -68,9 +68,9 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "get files modified that need to be added" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     f1.overwrite("modif")
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
@@ -84,9 +84,9 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "get files deleted that need to be rm" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     f1.delete()
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
@@ -100,9 +100,9 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "get untracked Files" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     (tempDirPath/"3").createFile()
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
@@ -115,9 +115,9 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "get nothing is there is no untracked Files" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     val index = Index(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>

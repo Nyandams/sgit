@@ -14,12 +14,12 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
     val f = (tempDirPath/"1").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     val f2 = (tempDirPath/"folder"/"2").createFileIfNotExists(true)
     f2.appendText("text file 2")
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
   }
 
   "The commit command" should "run" in {
@@ -35,7 +35,7 @@ class CommitSpec extends FlatSpec with BeforeAndAfterEach {
     Commit.commit(tempDirPath, "1st commit")
     val lastCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     val f = (tempDirPath/"3").createFileIfNotExists(createParents = true)
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     Commit.commit(tempDirPath, "2nd commit")
     val newCommit = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
     assert(lastCommit != newCommit)

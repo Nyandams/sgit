@@ -9,7 +9,7 @@ case class Blob(repo: File) {
     * @param files
     */
   def handleBlobsAdding(
-      files: Array[File],
+      files: List[File],
       index: Int = 0
   ): Map[String, String] = {
     if (index < files.length) {

@@ -4,7 +4,7 @@ import java.io
 import java.nio.file.Files
 import better.files._
 import util.FileTool.sha1Hash
-import command.Add.add
+import command.Add
 import org.scalatest.{FlatSpec, BeforeAndAfterEach}
 
 
@@ -15,13 +15,13 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
   }
 
   "ObjectTool.getFileFromSha" should "return the corresponding object if it exists" in {
     val file = (tempDirPath/"1").createFileIfNotExists(true)
     file.overwrite("test")
-    add(tempDirPath, Array(file.pathAsString))
+    Add(tempDirPath).add(Array(file.pathAsString))
     val sha = sha1Hash("test")
     ObjectTool(tempDirPath).getFileFromSha(sha) match {
       case Left(error) => assert(false)
@@ -41,7 +41,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
   "ObjectTool.getFileFromShaIncomplete" should "return the corresponding object if it exists" in {
     val file = (tempDirPath/"1").createFileIfNotExists(true)
     file.overwrite("test")
-    add(tempDirPath, Array(file.pathAsString))
+    Add(tempDirPath).add(Array(file.pathAsString))
     val sha = sha1Hash("test")
     ObjectTool(tempDirPath).getFileFromShaIncomplete(sha.substring(0,3)) match {
       case Left(error) => assert(false)
@@ -61,7 +61,7 @@ class ObjectToolSpec extends FlatSpec with BeforeAndAfterEach {
   it should "return an error if the sha1 is incorrect" in {
     val file = (tempDirPath/"1").createFileIfNotExists(true)
     file.overwrite("test")
-    add(tempDirPath, Array(file.pathAsString))
+    Add(tempDirPath).add(Array(file.pathAsString))
     ObjectTool(tempDirPath).getFileFromShaIncomplete("sdok") match {
       case Left(error) => assert(true)
       case Right(file) => assert(false)

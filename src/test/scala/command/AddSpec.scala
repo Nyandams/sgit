@@ -15,16 +15,16 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
   }
 
   "The add command" should "run" in {
-    Add.add(tempDirPath, Array())
+    Add(tempDirPath).add(Array())
   }
 
   it should "write in index file the good line" in {
     val f = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     val src = f.pathAsString.replace(tempDirPath.pathAsString + separator, "")
     val index = tempDirPath/".sgit"/"index"
 
@@ -33,11 +33,11 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "write in index file multiple lines for multiple files added" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val src1 = f1.pathAsString.replace(tempDirPath.pathAsString + separator, "")
 
     val f2 = (tempDirPath/"d1"/"2").createFileIfNotExists(true).appendText("this is file 2")
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     val src2 = f2.pathAsString.replace(tempDirPath.pathAsString + separator, "")
 
     val index = tempDirPath/".sgit"/"index"
@@ -48,7 +48,7 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "create a blob in objects with the sha-1 of the content as name" in {
     val f = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     val sha = sha1Hash(f.contentAsString)
     assert((tempDirPath/".sgit"/"objects"/sha.substring(0,2)/sha.substring(2)).exists())
   }
@@ -56,7 +56,7 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
   it should "create a blob with the same content as the original file" in {
     val f = (tempDirPath/"1").createFile()
     f.appendText("this is file 2")
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     val sha = sha1Hash(f.contentAsString)
     val blob = tempDirPath/".sgit"/"objects"/sha.substring(0,2)/sha.substring(2)
     assert(blob.contentAsString == f.contentAsString)
@@ -67,9 +67,9 @@ class AddSpec extends FlatSpec with BeforeAndAfterEach {
     val f = (tempDirPath/"1").createFile()
     f.appendText("this is file 2")
     val shaIndex = sha1Hash(index.contentAsString)
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     f.appendText("this is file 3")
-    Add.add(tempDirPath, Array(f.pathAsString))
+    Add(tempDirPath).add(Array(f.pathAsString))
     val newShaIndex = sha1Hash(index.contentAsString)
 
     assert(shaIndex != newShaIndex)

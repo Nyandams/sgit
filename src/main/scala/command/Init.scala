@@ -1,22 +1,26 @@
 package command
 
+import util.ObjectTool
+import util.BranchTool
+import objects.Index
 import better.files._
 import util.FileTool._
-import java.io.File.separator
 
-object Init {
-  def init(path: File = getUserDirectory): String = {
+case class Init(path: File = getUserDirectory) {
+  def init: String = {
     if (isInSgit()) {
       "You are already in a sgit repository"
     } else {
+      val objectTool = ObjectTool(path)
+      val branchTool = BranchTool(path)
+      val index = Index(path)
       (path / ".sgit").createDirectory()
-      (path / ".sgit" / "objects").createDirectory()
-      (path / ".sgit" / "refs" / "heads").createDirectories()
-      (path / ".sgit" / "refs" / "tags").createDirectories()
-      (path / ".sgit" / "index").createFile()
-      (path / ".sgit" / "HEAD")
-        .createFile()
-        .overwrite("ref: refs" + separator + "heads" + separator + "master")
+      objectTool.getObjectsDir.createDirectory()
+      branchTool.getHeadsFolder.createDirectories()
+      branchTool.getTagsFolder.createDirectories()
+      index.getIndexFile.createFile()
+      branchTool.getHeadFile.createFile()
+      branchTool.updateHeadRefBranch("master")
       ""
     }
   }

@@ -1,13 +1,13 @@
 package ui.cli
-import command.Add._
+import command.Add
 import command.Commit._
-import command.Init._
+import command.Init
 import command.Status._
-import command.Rm._
+import command.Rm
 import command.Tag._
 import command.Diff._
 import command.Log
-import command.Branch._
+import command.Branch
 import command.Checkout
 import ui.cli.Parser.getConfig
 import util.FileTool._
@@ -20,9 +20,9 @@ object Dispatcher {
         getConfig(arguments) match {
           case Some(config) =>
             config.mode match {
-              case "init"   => println(init())
-              case "add"    => print(add(repo, config.files))
-              case "rm"     => print(rm(repo, config.files))
+              case "init"   => println(Init().init)
+              case "add"    => print(Add(repo).add(config.files))
+              case "rm"     => print(Rm(repo).rm(config.files))
               case "commit" => println(commit(repo, config.commitMessage))
               case "status" => print(status(repo))
               case "tag" =>
@@ -32,9 +32,9 @@ object Dispatcher {
               case "diff" => print(diff(repo))
               case "log"  => print(Log(repo).log)
               case "branch" =>
-                if (config.file.nonEmpty) println(newBranch(repo, config.file))
-                else if (config.verbose) println(showBranchVerbose(repo))
-                else println(showBranch(repo))
+                if (config.file.nonEmpty) println(Branch(repo).newBranch(config.file))
+                else if (config.verbose) println(Branch(repo)showBranchVerbose)
+                else println(Branch(repo).showBranch)
               case "checkout" => println(Checkout(repo).checkout(config.file))
             }
           case None =>
@@ -45,7 +45,7 @@ object Dispatcher {
         getConfig(arguments) match {
           case Some(config) =>
             config.mode match {
-              case "init" => println(init())
+              case "init" => println(Init().init)
               case _      => println(error)
             }
           case None =>

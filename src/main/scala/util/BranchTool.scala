@@ -40,6 +40,8 @@ case class BranchTool(repo: File) {
     }
   }
 
+  def getListBranchNames: List[String] = getHeadsFolder.children.filter(_.isRegularFile).map(_.name).toList.sorted
+
   /**
     * Return the file corresponding to the content of HEAD
     * @return Either[error, File]

@@ -1,6 +1,6 @@
 package command
 
-import Console.{GREEN, RED, RESET, YELLOW_B, UNDERLINED}
+import Console.{GREEN, RED, RESET}
 import better.files._
 import objects.Index
 import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}

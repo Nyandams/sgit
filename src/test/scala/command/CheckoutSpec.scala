@@ -13,14 +13,14 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
   override def beforeEach(): Unit = {
     tempDir = Files.createTempDirectory("testRepo").toFile
     tempDirPath = File(tempDir.getCanonicalPath)
-    Init.init(tempDirPath)
+    Init(tempDirPath).init
   }
 
   "deleteWorkingDirectoryFiles" should "delete all files indexed" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     Checkout(tempDirPath).deleteWorkingDirectoryFiles()
     assert(!f1.exists && !f2.exists)
@@ -38,9 +38,9 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
 
   "isThereDiffIndexRepo" should "be true if index != repo" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     f2.overwrite("test2")
     val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
@@ -50,9 +50,9 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "be false if index == repo" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
     val diff = Checkout(tempDirPath).isThereDiffIndexRepo(mapIndex)
@@ -61,21 +61,21 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
 
   "isThereLocalChanges" should "be true if index != commit" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     f2.overwrite("test2")
-    Add.add(tempDirPath, Array(f2.pathAsString))
+    Add(tempDirPath).add(Array(f2.pathAsString))
     val diff = Checkout(tempDirPath).isThereLocalChanges.getOrElse(false)
     assert(diff)
   }
 
   it should "be false if index == commit" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val diff = Checkout(tempDirPath).isThereLocalChanges.getOrElse(false)
     assert(!diff)
@@ -83,11 +83,11 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
 
   "the checkout command" should "modify the HEAD file to ref the branch" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    Branch.newBranch(tempDirPath, "test")
+    Branch(tempDirPath).newBranch("test")
     Checkout(tempDirPath).checkout("test")
     val headFile = (tempDirPath/".sgit"/"HEAD")
     assert(headFile.contentAsString == "ref: refs/heads/test")
@@ -95,9 +95,9 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "pass in detached mode when it co to a tag" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     Tag.newTag(tempDirPath, "test")
     Checkout(tempDirPath).checkout("test")
@@ -107,9 +107,9 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
 
   it should "pass in detached mode when it co to a commit" in {
     val f1 = (tempDirPath/"1").createFile()
-    Add.add(tempDirPath, Array(f1.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
-    Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
+    Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val currBranch =  BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("zjjkapej"))
     val sha = currBranch.contentAsString
