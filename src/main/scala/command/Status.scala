@@ -16,7 +16,7 @@ case class Status(repo: File = getUserDirectory) {
   def status(userDir: File = getUserDirectory): String = {
     var toPrint = ""
     val index = Index(repo)
-    index.getMapFromIndex() match {
+    index.getMapFromIndex match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
         val notStagedChanges = getNotStagedChanges(mapIndex, userDir)
