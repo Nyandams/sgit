@@ -99,7 +99,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    Tag.newTag(tempDirPath, "test")
+    Tag(tempDirPath).newTag("test")
     Checkout(tempDirPath).checkout("test")
     val headFile = (tempDirPath/".sgit"/"HEAD")
     assert(headFile.contentAsString == "ref: refs/detached")

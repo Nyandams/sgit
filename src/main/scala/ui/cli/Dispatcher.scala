@@ -4,7 +4,7 @@ import command.Commit._
 import command.Init
 import command.Status._
 import command.Rm
-import command.Tag._
+import command.Tag
 import command.Diff._
 import command.Log
 import command.Branch
@@ -27,8 +27,8 @@ object Dispatcher {
               case "status" => print(status(repo))
               case "tag" =>
                 if (config.tagName.nonEmpty)
-                  println(newTag(repo, config.tagName))
-                else println(showTags(repo))
+                  println(Tag(repo).newTag(config.tagName))
+                else println(Tag(repo).showTags)
               case "diff" => print(diff(repo))
               case "log"  => print(Log(repo).log)
               case "branch" =>

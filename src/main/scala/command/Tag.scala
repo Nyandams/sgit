@@ -3,41 +3,26 @@ import better.files._
 import util.BranchTool
 import util.CommitTool
 
-object Tag {
-  def newTag(repo: File, nameTag: String): String = {
-    if (CommitTool(repo).isThereACommit) {
-      BranchTool(repo).getCurrentHeadFile match {
-        case Left(error) =>
-          "Failed to resolve 'HEAD' as a valid ref"
-        case Right(currentBranch) =>
-          val splitTagName = nameTag.split(" ")
-          if (splitTagName.length == 1) {
-            val tagFolder = (repo / ".sgit" / "refs" / "tags")
-            if (tagFolder.exists) {
-              if (tagFolder.list.contains(
-                    (repo / ".sgit" / "refs" / "tags" / nameTag)
-                  )) {
-                s"tag '${nameTag}' already exists"
-              } else {
-                val tagFile = (repo / ".sgit" / "refs" / "tags" / nameTag)
-                  .createFileIfNotExists(true)
-                tagFile.appendText(currentBranch.contentAsString)
-                ""
-              }
-            } else {
-              "no tags directory"
-            }
-          } else {
-            s"'${nameTag}' is not a valid tag name"
-          }
+case class Tag(repo: File) {
+  def newTag(nameTag: String): String = {
+    val commitTool = CommitTool(repo)
+    if (commitTool.isThereACommit) {
+      val branchTool = BranchTool(repo)
+      val newTag = branchTool.getTagFile(nameTag)
+      if (newTag.exists){
+        s"branch '${nameTag}' already exists"
+      } else {
+        newTag.createFileIfNotExists(true)
+        newTag.appendText(commitTool.lastCommitSha.get)
+        ""
       }
     } else {
       s"Not a valid object name: 'master'."
     }
   }
 
-  def showTags(repo: File): String = {
-    val tagFolder = (repo / ".sgit" / "refs" / "tags")
+  def showTags: String = {
+    val tagFolder = BranchTool(repo).getTagsFolder
     if (tagFolder.exists) {
       (tagFolder.children.map(f => f.name) mkString "\n")
     } else {
