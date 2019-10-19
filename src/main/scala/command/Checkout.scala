@@ -1,14 +1,10 @@
 package command
 
 import better.files.File
-import util.CommitTool
+import util.{BranchTool, CommitTool, IndexTool, ObjectTool}
 import java.io.File.separator
 
-import objects.Index
-import util.BranchTool
-
 import annotation.tailrec
-import util.ObjectTool
 import util.FileTool.{allFileRepoSet, sha1Hash}
 
 case class Checkout(repo: File) {
@@ -30,7 +26,7 @@ case class Checkout(repo: File) {
               CommitTool(repo).getMapBlobCommit(shaCommit) match {
                 case Left(error) => error
                 case Right(mapCommit) =>
-                  val index = Index(repo)
+                  val index = util.IndexTool(repo)
                   index.updateIndex(mapCommit)
                   createWorkingDirectoryFiles(mapCommit)
                   toPrint
@@ -79,7 +75,7 @@ case class Checkout(repo: File) {
   }
 
   def isThereLocalChanges: Either[String, Boolean] = {
-    val index = Index(repo)
+    val index = util.IndexTool(repo)
     index.getMapFromIndex() match {
       case Left(error) => Left(error)
       case Right(mapIndex) =>
@@ -144,7 +140,7 @@ case class Checkout(repo: File) {
         deleteFiles(listFiles.tail)
       }
     }
-    val index = Index(repo)
+    val index = util.IndexTool(repo)
     index.getMapFromIndex() match {
       case Left(error) =>
       case Right(mapIndex) =>

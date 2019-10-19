@@ -3,9 +3,8 @@ import java.io
 import java.nio.file.Files
 
 import better.files._
-import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
-import util.{BranchTool, CommitTool}
+import util.{BranchTool, CommitTool, IndexTool}
 
 class StatusSpec extends FlatSpec with BeforeAndAfterEach {
   var tempDir: io.File = Files.createTempDirectory("testRepo").toFile
@@ -23,7 +22,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     Commit(tempDirPath).commit("commit")
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val currentBranch =   BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("3"))
@@ -39,7 +38,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f1 = (tempDirPath/"1").createFile()
     Add(tempDirPath).add(Array(f1.pathAsString))
     Commit(tempDirPath).commit("commit")
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val currentBranch =   BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("3"))
@@ -56,7 +55,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
 
@@ -72,7 +71,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
     f1.overwrite("modif")
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
 
@@ -88,7 +87,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
     f1.delete()
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
 
@@ -104,7 +103,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
     (tempDirPath/"3").createFile()
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val changes = Status(tempDirPath).getUntrackedFiles(mapIndex.keySet, tempDirPath)
@@ -118,7 +117,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
     Add(tempDirPath).add(Array(f1.pathAsString))
     val f2 = (tempDirPath/"2").createFile()
     Add(tempDirPath).add(Array(f2.pathAsString))
-    val index = Index(tempDirPath)
+    val index = util.IndexTool(tempDirPath)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val changes = Status(tempDirPath).getUntrackedFiles(mapIndex.keySet, tempDirPath)

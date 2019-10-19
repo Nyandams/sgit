@@ -1,14 +1,14 @@
 package command
 import better.files._
+
 import annotation.tailrec
-import objects.Index
-import util.ObjectTool
+import util.{IndexTool, ObjectTool}
 
 import Console.{GREEN, RED, RESET}
 
 case class Diff(repo: File) {
   def diff: String = {
-    val index = Index(repo)
+    val index = util.IndexTool(repo)
     index.getMapFromIndex() match {
       case Left(error) => error
       case Right(mapIndex) =>

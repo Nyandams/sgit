@@ -1,14 +1,13 @@
 package command
 import better.files._
-import objects.Blob
-import objects.Index
+import util.{BlobTool, IndexTool}
 
 case class Add(repo: File) {
 
   def add(filesPath: Array[String]): String = {
     val validFilesToAdd = getFilesToAdd(filesPath.toList)
-    val indexMapAdded = Blob(repo).handleBlobsAdding(validFilesToAdd)
-    Index(repo).addFilesIndex(indexMapAdded)
+    val indexMapAdded = util.BlobTool(repo).handleBlobsAdding(validFilesToAdd)
+    util.IndexTool(repo).addFilesIndex(indexMapAdded)
   }
 
   private def getFilesToAdd(filesPath: List[String]): List[File] = {

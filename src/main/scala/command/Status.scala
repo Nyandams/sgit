@@ -2,10 +2,8 @@ package command
 
 import Console.{GREEN, RED, RESET}
 import better.files._
-import objects.Index
-import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
-import util.BranchTool
-import util.CommitTool
+import util.FileTool.{allFileRepoSet, getUserDirectory, sha1Hash}
+import util.{BranchTool, CommitTool, IndexTool}
 
 case class Status(repo: File = getUserDirectory) {
 
@@ -15,7 +13,7 @@ case class Status(repo: File = getUserDirectory) {
     */
   def status(userDir: File = getUserDirectory): String = {
     var toPrint = ""
-    val index = Index(repo)
+    val index = util.IndexTool(repo)
     index.getMapFromIndex match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet

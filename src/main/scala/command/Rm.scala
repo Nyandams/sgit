@@ -1,13 +1,13 @@
 package command
 
 import better.files.File
-import objects.Index
+import util.IndexTool
 
 case class Rm(repo: File) {
   def rm(filesPath: Array[String]): String = {
     val filesToDelete = getFilesToRm(filesPath.toList)
     filesToDelete.filter(_.exists).map(_.delete())
-    Index(repo).rmFilesIndex(filesToDelete)
+    util.IndexTool(repo).rmFilesIndex(filesToDelete)
   }
 
   private def getFilesToRm(filesPath: List[String]): List[File] = {

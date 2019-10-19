@@ -4,7 +4,7 @@ import java.nio.file.Files
 import java.io.File.separator
 import util.FileTool.sha1Hash
 import better.files._
-import objects.Index._
+import util.IndexTool._
 import org.scalatest.{FlatSpec, FunSpec, Matchers, BeforeAndAfterEach}
 
 

@@ -1,8 +1,8 @@
-package objects
+package util
 
-import better.files._
+import better.files.File
 
-case class Blob(repo: File) {
+case class BlobTool(repo: File) {
 
   /**
     * Create Blobs and add them to the index

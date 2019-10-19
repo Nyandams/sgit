@@ -1,10 +1,10 @@
 package command
 import java.io
 import java.nio.file.Files
+
 import better.files._
-import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
-import util.BranchTool
+import util.{BranchTool, IndexTool}
 
 class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
   var tempDir: io.File = Files.createTempDirectory("testRepo").toFile
@@ -43,7 +43,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit(tempDirPath).commit("1st Commit")
     f2.overwrite("test2")
-    val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
+    val mapIndex = util.IndexTool(tempDirPath).getMapFromIndex().getOrElse(Map())
     val diff = Checkout(tempDirPath).isThereDiffIndexRepo(mapIndex)
     assert(diff)
   }
@@ -54,7 +54,7 @@ class CheckoutSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add(tempDirPath).add(Array(f1.pathAsString, f2.pathAsString))
     Commit(tempDirPath).commit("1st Commit")
-    val mapIndex = Index(tempDirPath).getMapFromIndex().getOrElse(Map())
+    val mapIndex = util.IndexTool(tempDirPath).getMapFromIndex().getOrElse(Map())
     val diff = Checkout(tempDirPath).isThereDiffIndexRepo(mapIndex)
     assert(!diff)
   }

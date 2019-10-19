@@ -1,8 +1,10 @@
-package objects
-import better.files._
-import annotation.tailrec
+package util
 
-case class Index(repo: File) {
+import better.files.File
+
+import scala.annotation.tailrec
+
+case class IndexTool(repo: File) {
 
   def getIndexFile: File = repo / ".sgit" / "index"
 

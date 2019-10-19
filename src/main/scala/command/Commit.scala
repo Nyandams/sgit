@@ -2,18 +2,16 @@ package command
 
 import util.FileTool._
 import better.files._
-import objects.Index
 import java.util.regex.Pattern
 import java.io.File.separator
+
 import annotation.tailrec
-import util.BranchTool
-import util.CommitTool
-import util.ObjectTool
+import util.{BranchTool, CommitTool, IndexTool, ObjectTool}
 
 case class Commit(repo: File) {
 
   def commit(message: String): String = {
-    val index = Index(repo)
+    val index = util.IndexTool(repo)
     index.getMapFromIndex() match {
       case Right(mapIndex) =>
         val keys = mapIndex.keySet
