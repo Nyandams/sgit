@@ -21,11 +21,11 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     val f1 = (tempDirPath/"1").createFile()
     Add.add(tempDirPath, Array(f1.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    assert(isThereACommit(tempDirPath))
+    assert( CommitTool(tempDirPath).isThereACommit)
   }
 
   "CommitTool.isThereACommit" should "return false if there isn't a commit" in {
-    assert(!isThereACommit(tempDirPath))
+    assert(! CommitTool(tempDirPath).isThereACommit)
   }
 
   "CommitTool.getMapBlobCommit" should "return a map of the size of all the files in the commit" in {
@@ -34,7 +34,7 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val commitSha = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
-    getMapBlobCommit(tempDirPath, commitSha) match {
+    CommitTool(tempDirPath).getMapBlobCommit(commitSha) match {
       case Left(error) => assert(false)
       case Right(mapCommit) => assert(mapCommit.size == 2)
     }
@@ -46,7 +46,7 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val commitSha = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
-    getMapBlobCommit(tempDirPath, commitSha) match {
+    CommitTool(tempDirPath).getMapBlobCommit(commitSha) match {
       case Left(error) => assert(false)
       case Right(mapCommit) => assert(mapCommit.contains("1") && mapCommit.contains("dir/2"))
     }
@@ -57,7 +57,7 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    getMapBlobCommit(tempDirPath, "sdfjmsdj") match {
+    CommitTool(tempDirPath).getMapBlobCommit("sdfjmsdj") match {
       case Left(error) => assert(true)
       case Right(mapCommit) => assert(false)
     }
@@ -69,7 +69,7 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
     val commitSha = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
-    getMapFromCommit(tempDirPath, commitSha) match {
+    CommitTool(tempDirPath).getMapFromCommit(commitSha) match {
       case Left(error) => assert(false)
       case Right(mapCommit) => assert(mapCommit.contains("tree") && mapCommit.contains("msg"))
     }
@@ -83,7 +83,7 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     Add.add(tempDirPath, Array(f2.pathAsString))
     Commit.commit(tempDirPath, "2nd Commit")
     val commitSha = (tempDirPath/".sgit"/"refs"/"heads"/"master").contentAsString
-    getMapFromCommit(tempDirPath, commitSha) match {
+    CommitTool(tempDirPath).getMapFromCommit(commitSha) match {
       case Left(error) => assert(false)
       case Right(mapCommit) => assert(mapCommit.contains("tree") && mapCommit.contains("msg") && mapCommit.contains("parent"))
     }
@@ -94,7 +94,7 @@ class CommitToolSpec extends FlatSpec with BeforeAndAfterEach {
     val f2 = (tempDirPath/"dir"/"2").createFileIfNotExists(true)
     Add.add(tempDirPath, Array(f1.pathAsString, f2.pathAsString))
     Commit.commit(tempDirPath, "1st Commit")
-    getMapFromCommit(tempDirPath, "khkjhjkh") match {
+    CommitTool(tempDirPath).getMapFromCommit("khkjhjkh") match {
       case Left(error) => assert(true)
       case Right(mapCommit) => assert(false)
     }

@@ -5,7 +5,7 @@ import better.files._
 import objects.Index
 import util.FileTool.{sha1Hash, getUserDirectory, allFileRepoSet}
 import util.BranchTool
-import util.CommitTool.getMapBlobCommit
+import util.CommitTool
 
 object Status {
 
@@ -34,7 +34,7 @@ object Status {
             } else {
               val sha1Commit = currentBranch.contentAsString
               val mapCommit =
-                getMapBlobCommit(repo, sha1Commit).getOrElse(Map())
+                CommitTool(repo).getMapBlobCommit(sha1Commit).getOrElse(Map())
               changesToCommit =
                 getChangesToCommit(repo, mapIndex, mapCommit, userDir)
             }

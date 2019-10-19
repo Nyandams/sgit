@@ -1,7 +1,7 @@
 package command
 
 import better.files.File
-import util.CommitTool.getMapBlobCommit
+import util.CommitTool
 import java.io.File.separator
 
 import objects.Index
@@ -27,7 +27,7 @@ case class Checkout(repo: File) {
             case Left(error) => error
             case Right((shaCommit, toPrint)) =>
               deleteWorkingDirectoryFiles()
-              getMapBlobCommit(repo, shaCommit) match {
+              CommitTool(repo).getMapBlobCommit(shaCommit) match {
                 case Left(error) => error
                 case Right(mapCommit) =>
                   val index = Index(repo)
@@ -87,7 +87,7 @@ case class Checkout(repo: File) {
           case Left(error) => Left(error)
           case Right(currentBranch) =>
             val mapCommit =
-              getMapBlobCommit(repo, currentBranch.contentAsString)
+              CommitTool(repo).getMapBlobCommit(currentBranch.contentAsString)
                 .getOrElse(Map())
             val isDiffCommitIndex = if (mapCommit == mapIndex) false else true
             val isDiffIndexRepo = isThereDiffIndexRepo(mapIndex)
@@ -145,7 +145,7 @@ case class Checkout(repo: File) {
     }
     val index = Index(repo)
     index.getMapFromIndex() match {
-      case Left(error) => error
+      case Left(error) =>
       case Right(mapIndex) =>
         val filesToDelete = mapIndex.keySet.map(src => (repo / src))
         deleteFiles(filesToDelete)

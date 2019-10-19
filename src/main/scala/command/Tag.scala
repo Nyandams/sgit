@@ -1,11 +1,11 @@
 package command
 import better.files._
 import util.BranchTool
-import util.CommitTool.isThereACommit
+import util.CommitTool
 
 object Tag {
   def newTag(repo: File, nameTag: String): String = {
-    if (isThereACommit(repo)) {
+    if (CommitTool(repo).isThereACommit) {
       BranchTool(repo).getCurrentHeadFile match {
         case Left(error) =>
           "Failed to resolve 'HEAD' as a valid ref"

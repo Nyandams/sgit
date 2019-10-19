@@ -5,9 +5,7 @@ import java.nio.file.Files
 import better.files._
 import objects.Index
 import org.scalatest.{BeforeAndAfterEach, FlatSpec}
-import util.BranchTool
-import util.CommitTool.getMapBlobCommit
-
+import util.{BranchTool, CommitTool}
 
 class StatusSpec extends FlatSpec with BeforeAndAfterEach {
   var tempDir: io.File = Files.createTempDirectory("testRepo").toFile
@@ -30,7 +28,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
       case Right(mapIndex) =>
         val currentBranch =   BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("3"))
         val sha1Commit = currentBranch.contentAsString
-        val mapCommit = getMapBlobCommit(tempDirPath, sha1Commit).getOrElse(Map())
+        val mapCommit =  CommitTool(tempDirPath).getMapBlobCommit(sha1Commit).getOrElse(Map())
         val changes = Status.getChangesToCommit(tempDirPath,mapIndex, mapCommit, tempDirPath)
         assert(changes.nonEmpty)
       case Left(error) => assert(false)
@@ -46,7 +44,7 @@ class StatusSpec extends FlatSpec with BeforeAndAfterEach {
       case Right(mapIndex) =>
         val currentBranch =   BranchTool(tempDirPath).getCurrentHeadFile.getOrElse(File("3"))
         val sha1Commit = currentBranch.contentAsString
-        val mapCommit = getMapBlobCommit(tempDirPath, sha1Commit).getOrElse(Map())
+        val mapCommit =  CommitTool(tempDirPath).getMapBlobCommit(sha1Commit).getOrElse(Map())
         val changes = Status.getChangesToCommit(tempDirPath,mapIndex, mapCommit, tempDirPath)
         assert(changes.isEmpty)
       case Left(error) => assert(false)

@@ -4,13 +4,12 @@ import java.io.File.separator
 
 import scala.annotation.tailrec
 
-object CommitTool {
+case class CommitTool(repo: File) {
 
   /**
     * src -> SHA-1
     */
   def getMapFromCommit(
-      repo: File,
       sha1Commit: String
   ): Either[String, Map[String, String]] = {
 
@@ -19,6 +18,7 @@ object CommitTool {
         lines: List[String],
         mapCommit: Map[String, String]
     ): Map[String, String] = {
+
       @tailrec
       def getMessage(lines: List[String], message: String): String = {
         if (lines.nonEmpty) {
@@ -55,13 +55,12 @@ object CommitTool {
   }
 
   def getMapBlobCommit(
-      repo: File,
       shaCommit: String
   ): Either[String, Map[String, String]] = {
-    getMapFromCommit(repo, shaCommit) match {
+    getMapFromCommit(shaCommit) match {
       case Right(mapCommit) =>
         val treeCommit = mapCommit("tree")
-        getBlobMapFromTree(repo, treeCommit)
+        getBlobMapFromTree(treeCommit)
       case Left(error) => Left(error)
     }
   }
@@ -70,7 +69,6 @@ object CommitTool {
     * src -> SHA-1
     */
   def getBlobMapFromTree(
-      repo: File,
       sha1Commit: String,
       parent: String = ""
   ): Either[String, Map[String, String]] = {
@@ -130,7 +128,48 @@ object CommitTool {
     }
   }
 
-  def isThereACommit(repo: File): Boolean = {
+  /**
+   * List the commit and its ancestors in a map format if the commit exist
+   * add the sha of the commit in the map
+   */
+  def listMapCommit(shaCommit: String): List[Map[String, String]] = {
+
+    @tailrec
+    def retrieveParentCommit(listCommit: List[Map[String, String]]): List[Map[String, String]] ={
+      val currentCommit = listCommit.last
+      if (currentCommit.contains("parent")){
+        getMapFromCommit(currentCommit("parent")) match {
+          case Left(error) => listCommit
+          case Right(mapParentCommit) =>
+            val newList = (listCommit :+ (mapParentCommit + ("name" -> currentCommit("parent"))))
+            retrieveParentCommit(newList)
+        }
+      } else {
+        listCommit
+      }
+    }
+
+    getMapFromCommit(shaCommit) match {
+      case Left(_) => List()
+      case Right(mapCommit) =>
+        val listInit = List(mapCommit + ("name" -> shaCommit))
+        retrieveParentCommit(listInit)
+    }
+  }
+
+  def lastCommitSha: Option[String] = {
+    BranchTool(repo).getCurrentHeadFile match {
+      case Left(error) => None
+      case Right(currentBranch) =>
+        if (currentBranch.contentAsString.nonEmpty) {
+          Some(currentBranch.contentAsString)
+        } else {
+          None
+        }
+    }
+  }
+
+  def isThereACommit: Boolean = {
     BranchTool(repo).getCurrentHeadFile match {
       case Left(error) => false
       case Right(currentBranch) =>

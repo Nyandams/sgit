@@ -6,7 +6,7 @@ import command.Status._
 import command.Rm._
 import command.Tag._
 import command.Diff._
-import command.Log._
+import command.Log
 import command.Branch._
 import command.Checkout
 import ui.cli.Parser.getConfig
@@ -30,7 +30,7 @@ object Dispatcher {
                   println(newTag(repo, config.tagName))
                 else println(showTags(repo))
               case "diff" => print(diff(repo))
-              case "log"  => print(log(repo))
+              case "log"  => print(Log(repo).log)
               case "branch" =>
                 if (config.file.nonEmpty) println(newBranch(repo, config.file))
                 else if (config.verbose) println(showBranchVerbose(repo))

@@ -7,7 +7,7 @@ import java.util.regex.Pattern
 import java.io.File.separator
 import annotation.tailrec
 import util.BranchTool
-import util.CommitTool._
+import util.CommitTool
 
 object Commit {
 
@@ -46,7 +46,7 @@ object Commit {
                   s"[${currentBranch.name} (root-commit) ${shaCommit
                     .slice(0, 8)}] ${message}"
                 } else {
-                  getMapFromCommit(repo, lastCommit) match {
+                  CommitTool(repo).getMapFromCommit(lastCommit) match {
                     case Right(mapCommit) =>
                       if (treeCommit == mapCommit("tree")) {
 

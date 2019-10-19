@@ -3,13 +3,13 @@ import Console.{GREEN, RESET}
 import better.files.File
 import util.BranchTool
 import util.BranchTool
-import util.CommitTool._
+import util.CommitTool
 
 import annotation.tailrec
 
 object Branch {
   def newBranch(repo: File, nameBranch: String): String = {
-    if (isThereACommit(repo)) {
+    if (CommitTool(repo).isThereACommit) {
       BranchTool(repo).getCurrentHeadFile match {
         case Left(error) => "Failed to resolve 'HEAD' as a valid ref"
         case Right(currentBranch) =>
@@ -113,7 +113,7 @@ object Branch {
   ): String = {
     val name = branch.name
     val sha1Commit = branch.contentAsString
-    getMapFromCommit(repo, sha1Commit) match {
+    CommitTool(repo).getMapFromCommit(sha1Commit) match {
       case Left(error) => error
       case Right(mapCommit) =>
         val spaceString = repeatChar(' ', longestBranchName - name.length)
