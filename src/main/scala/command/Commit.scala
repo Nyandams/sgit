@@ -19,7 +19,7 @@ case class Commit(repo: File) {
         val keys = mapIndex.keySet
         BranchTool(repo).getCurrentHeadFile match {
           case Right(currentBranch) =>
-            if (keys.nonEmpty) {
+            if (keys.nonEmpty || CommitTool(repo).isThereACommit) {
               val separator =
                 Pattern.quote(System.getProperty("file.separator"))
               val listSorted = keys.toList
